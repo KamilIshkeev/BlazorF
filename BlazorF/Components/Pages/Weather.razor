@@ -1,64 +1,65 @@
 ﻿@page "/weather"
 @attribute [StreamRendering]
+@using Microsoft.AspNetCore.SignalR.Client
+@rendermode InteractiveServer
 
 <PageTitle>Weather</PageTitle>
 
-<h1>Weather</h1>
+<h3>Chat</h3>
 
-<p>This component demonstrates showing data.</p>
+<div> 
+    <input type="text" @bind="iUser" placeholder="Мое имя" />
+    <button @onclick="RegUser" >Регистрация</button>
+</div>
 
-@if (forecasts == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var forecast in forecasts)
-            {
-                <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+<div>
+    <input type="text" @bind= "OtherUser" placeholder="Кому отправляю имя" />
+    <input type="text" @bind = "message" placeholder="Сообщение" />
+    <button @onclick="SendMessage">Send</button>
+</div>
+<div>
+    @foreach (var msg in messages)
+    {
+        <p>@msg</p>
+    }
+</div>
 
 @code {
-    private WeatherForecast[]? forecasts;
+    string message = "";
+    string iUser = "";
+    string OtherUser = "";
+    HubConnection hubConnection;
+    List<string> messages = new List<string>();
+
+
 
     protected override async Task OnInitializedAsync()
     {
-        // Simulate asynchronous loading to demonstrate streaming rendering
-        await Task.Delay(500);
+        hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
 
-        var startDate = DateOnly.FromDateTime(DateTime.Now);
-        var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
         {
-            Date = startDate.AddDays(index),
-            TemperatureC = Random.Shared.Next(-20, 55),
-            Summary = summaries[Random.Shared.Next(summaries.Length)]
-        }).ToArray();
+            messages.Add($"{user}: {message}");
+            InvokeAsync(StateHasChanged);
+
+        });
+        await hubConnection.StartAsync();
     }
 
-    private class WeatherForecast
+    async Task SendMessage()
     {
-        public DateOnly Date { get; set; }
-        public int TemperatureC { get; set; }
-        public string? Summary { get; set; }
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        await hubConnection.SendAsync("SendMessage",OtherUser, iUser, message);
+        messages.Add($"{iUser}: {message}");
+        message = string.Empty;
+
+
     }
+
+    async Task RegUser()
+    {
+        await hubConnection.SendAsync("RegisterUser", iUser);
+        // message = string.Empty;
+    }
+
+
 }

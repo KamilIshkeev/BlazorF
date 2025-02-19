@@ -420,7 +420,7 @@ else
     {
         try
         {
-            var response = await Http.PutAsJsonAsync($"api/Movie/{newMovie.Id}", newMovie);
+            var response = await Http.PutAsJsonAsync($"api/movies/{newMovie.Id}", newMovie);
             if (response.IsSuccessStatusCode)
             {
                 await LoadMovies();
@@ -442,7 +442,7 @@ else
     {
         try
         {
-            var response = await Http.PostAsJsonAsync("api/Movie", newMovie);
+            var response = await Http.PostAsJsonAsync("api/movies", newMovie);
             if (response.IsSuccessStatusCode)
             {
                 await LoadMovies();
@@ -480,7 +480,7 @@ else
     {
         try
         {
-            var response = await Http.DeleteAsync($"api/Movie/{id}");
+            var response = await Http.DeleteAsync($"api/movies/{id}");
             if (response.IsSuccessStatusCode)
             {
                 await LoadMovies();
