@@ -1,4 +1,5 @@
 using BlazorF.Components;
+using Microsoft.AspNetCore.Routing.Constraints;
 
 var builder = WebApplication.CreateBuilder(args);
 

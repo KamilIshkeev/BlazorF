@@ -3,6 +3,9 @@
 @using Microsoft.AspNetCore.SignalR.Client
 @rendermode InteractiveServer
 @using BlazorF.ApiFilm.Models
+@inject HttpClient Http
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 
 
 
@@ -10,34 +13,33 @@
 
 <h3>Chat</h3>
 
-<div> 
-    <input type="text" @bind="iUser" placeholder="Мое имя" />
-    <button @onclick="RegUser" >Регистрация</button>
-</div>
 
+<div>
+	@foreach (var msg in messages)
+	{
+		<p>@msg</p>
+	}
+</div>
 <div>
     <input type="text" @bind= "OtherUser" placeholder="Кому отправляю имя" />
     <input type="text" @bind = "message" placeholder="Сообщение" />
     <button @onclick="SendMessage">Send</button>
 </div>
-<div>
-    @foreach (var msg in messages)
-    {
-        <p>@msg</p>
-    }
-</div>
+
 
 @code {
+    private User user;
     string message = "";
-    string iUser = "";
+    public string iUser = Counter.idU.Name;
     string OtherUser = "";
     HubConnection hubConnection;
     List<string> messages = new List<string>();
-    private User user;
+    
 
 
     protected override async Task OnInitializedAsync()
     {
+        user = Counter.idU;
         hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
 
         hubConnection.On<string, string>("ReceiveMessage", (user, message) =>

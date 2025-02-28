@@ -1,5 +1,5 @@
-﻿<!-- Pages/Chat.razor -->
-@page "/chat/{MovieId:int}"
+﻿@* <!-- Pages/Chat.razor -->
+@page "/movie/{movieId: int}"
 @using System.Net.Http.Headers;
 @inject HttpClient Http
 @implements IDisposable
@@ -9,12 +9,12 @@
 
 
 <h3>Чат для фильма</h3>
-
+<h2>@movie.Title</h2>
 <ul>
     @foreach (var message in messages)
     {
         <li>
-            <strong>@message.User.Name:</strong> @message.Content
+            <strong>@Counter.idU:</strong> @message.Content
             @if (message.Photos != null && message.Photos.Any())
             {
                 <div>
@@ -35,27 +35,28 @@
 
 @code {
     [Parameter]
-    public static int MovieId { get; set; }
+    public static int movieId { get; set; }
 
     private List<Message> messages = new();
-    private Message newMessage = new() { MovieId = MovieId };
+    private Message newMessage = new() { MovieId = movieId };
     private HubConnection hubConnection;
+    private Movie movie;
 
     protected override async Task OnInitializedAsync()
     {
+        movie = await Http.GetFromJsonAsync<Movie>($"api/movies/{movieId}");
         // Инициализация соединения SignalR
-        hubConnection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("/chatHub"))
-            .Build();
+        hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
 
+        var usar = Counter.idU.Name;
         // Подписываемся на получение новых сообщений
-        hubConnection.On<string, string, int?>("ReceiveMessage", (user, message, movieId) =>
+        hubConnection.On<string, string, int?>("ReceiveMessage1", (usar, message, movieId) =>
         {
-            if (movieId == MovieId)
+            if (movieId == movieId)
             {
                 messages.Add(new Message
                     {
-                        User = new User { Name = user },
+                        User = Counter.idU,
                         Content = message,
                         MovieId = movieId
                     });
@@ -67,18 +68,18 @@
         await hubConnection.StartAsync();
 
         // Загружаем начальные сообщения
-        messages = await Http.GetFromJsonAsync<List<Message>>($"api/chat/movie/{MovieId}");
+        messages = await Http.GetFromJsonAsync<List<Message>>($"api/Chat/movie/{movieId}");
     }
 
     private async Task SendNewMessage()
     {
-        await Http.PostAsJsonAsync("api/chat", newMessage);
+        await Http.PostAsJsonAsync("api/Chat", newMessage);
 
         // Отправляем сообщение через SignalR
-        await hubConnection.SendAsync("SendMessageMov", AuthenticationStateProvider.GetUserName(), newMessage.Content, MovieId);
+        await hubConnection.SendAsync("SendMessageMov", Counter.idU.Name, newMessage.Content, movieId);
 
         messages.Add(newMessage);
-        newMessage = new() { MovieId = MovieId };
+        newMessage = new() { MovieId = movieId };
     }
 
     public void Dispose()
@@ -86,4 +87,4 @@
         // Закрываем соединение при выходе из компонента
         hubConnection?.DisposeAsync().GetAwaiter().GetResult();
     }
-}
+} *@
