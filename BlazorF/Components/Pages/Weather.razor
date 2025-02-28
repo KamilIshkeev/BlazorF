@@ -2,6 +2,9 @@
 @attribute [StreamRendering]
 @using Microsoft.AspNetCore.SignalR.Client
 @rendermode InteractiveServer
+@using BlazorF.ApiFilm.Models
+
+
 
 <PageTitle>Weather</PageTitle>
 
@@ -30,7 +33,7 @@
     string OtherUser = "";
     HubConnection hubConnection;
     List<string> messages = new List<string>();
-
+    private User user;
 
 
     protected override async Task OnInitializedAsync()

@@ -9,35 +9,35 @@
 
 <style>
     .form-control:focus {
-        border-color: #1E90FF;
-        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    border-color: #1E90FF;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
     }
 
     .btn-primary {
-        background-color: #1E90FF;
-        border-color: #1E90FF;
+    background-color: #1E90FF;
+    border-color: #1E90FF;
     }
 
     .btn-primary:hover {
-            background-color: #87CEFA;
-            border-color: #87CEFA;
+    background-color: #87CEFA;
+    border-color: #87CEFA;
     }
 
     .card {
-        border: none;
-        border-radius: 10px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
     .btn-link {
-        
-        border-color: white;
-        color: black;
-        
+
+    border-color: white;
+    color: black;
+
     }
 
     .btn-link:hover {
-        text-decoration: underline;
+    text-decoration: underline;
     }
 
 </style>
@@ -72,7 +72,8 @@
 
 @code {
     private User loginUser = new User();
-    
+    public static User idU;
+
     private async Task HandleLogin()
     {
         try
@@ -83,7 +84,7 @@
                 return;
             }
 
-            
+
             var loginRequest = new LoginRequest
             {
                 Email = loginUser.Email,
@@ -97,7 +98,10 @@
                 var user = await response.Content.ReadFromJsonAsync<User>();
                 if (user != null)
                 {
-                    int userId = user.Id;
+
+
+                    int  userId = user.Id;
+                    idU = user;
                     await JS.InvokeVoidAsync("localStorage.setItem", "currentUserId", userId);
 
                     string userRole = user.Role;
@@ -110,7 +114,8 @@
                             NavigationManager.NavigateTo("/admin");
                             break;
                         case "Пользователь":
-                            NavigationManager.NavigateTo("/movies");
+                            NavigationManager.NavigateTo("/profile");
+                            // /movies
                             break;
                     }
 
