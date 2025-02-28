@@ -1,0 +1,101 @@
+﻿<!-- Pages/Chat.razor -->
+@page "/chat/{MovieId:int}"
+@using System.Net.Http.Headers;
+@inject HttpClient Http
+
+<h3>Чат для фильма</h3>
+
+@if (messages != null)
+{
+    <ul>
+        @foreach (var message in messages)
+        {
+            <li>
+                <strong>@message.User.Name:</strong> @message.Content
+                @if (message.Photos != null && message.Photos.Any())
+                {
+                    <div>
+                        @foreach (var photo in message.Photos)
+                        {
+                            <img src="@photo.FilePath" width="100" />
+                        }
+                    </div>
+                }
+            </li>
+        }
+    </ul>
+}
+
+<form @onsubmit="SendNewMessage">
+    <input type="text" @bind="newMessage.Content" placeholder="Введите сообщение..." />
+    <button type="submit">Отправить</button>
+</form>
+
+<h3>Загрузка файла</h3>
+
+<InputFile OnChange="@(e => HandleFileSelected(e))" />
+
+@if (selectedFile != null)
+{
+    <p>Выбранный файл: @selectedFile.Name</p>
+}
+
+<button @onclick="UploadPhoto">Загрузить фото</button>
+
+@code {
+    [Parameter]
+    public static int MovieId { get; set; }
+
+    private List<Message> messages = new();
+    private Message newMessage = new() { MovieId = MovieId };
+
+    protected override async Task OnParametersSetAsync()
+    {
+        messages = await Http.GetFromJsonAsync<List<Message>>($"api/chat/movie/{MovieId}");
+    }
+
+    private async Task SendNewMessage()
+    {
+        await Http.PostAsJsonAsync("api/chat", newMessage);
+        messages.Add(newMessage);
+        newMessage = new() { MovieId = MovieId };
+    }
+
+
+    private IBrowserFile selectedFile;
+
+    // Обработчик выбора файла
+    private void HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        selectedFile = e.File;
+    }
+
+    // Метод для загрузки файла на сервер
+    private async Task UploadPhoto()
+    {
+        if (selectedFile == null)
+        {
+            Console.WriteLine("Файл не выбран.");
+            return;
+        }
+
+        var formData = new MultipartFormDataContent();
+        var fileContent = new StreamContent(selectedFile.OpenReadStream());
+
+        // Установка типа содержимого файла
+        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(selectedFile.ContentType);
+        formData.Add(fileContent, "file", selectedFile.Name);
+
+        var response = await Http.PostAsync("api/chat/upload-photo", formData);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Console.WriteLine("Файл успешно загружен!");
+        }
+        else
+        {
+            Console.WriteLine("Ошибка при загрузке файла.");
+        }
+    }
+
+}
