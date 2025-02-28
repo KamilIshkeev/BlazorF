@@ -2,45 +2,36 @@
 @page "/chat/{MovieId:int}"
 @using System.Net.Http.Headers;
 @inject HttpClient Http
+@implements IDisposable
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.SignalR.Client
+
+
 
 <h3>Чат для фильма</h3>
 
-@if (messages != null)
-{
-    <ul>
-        @foreach (var message in messages)
-        {
-            <li>
-                <strong>@message.User.Name:</strong> @message.Content
-                @if (message.Photos != null && message.Photos.Any())
-                {
-                    <div>
-                        @foreach (var photo in message.Photos)
-                        {
-                            <img src="@photo.FilePath" width="100" />
-                        }
-                    </div>
-                }
-            </li>
-        }
-    </ul>
-}
+<ul>
+    @foreach (var message in messages)
+    {
+        <li>
+            <strong>@message.User.Name:</strong> @message.Content
+            @if (message.Photos != null && message.Photos.Any())
+            {
+                <div>
+                    @foreach (var photo in message.Photos)
+                    {
+                        <img src="@photo.FilePath" width="100" />
+                    }
+                </div>
+            }
+        </li>
+    }
+</ul>
 
 <form @onsubmit="SendNewMessage">
     <input type="text" @bind="newMessage.Content" placeholder="Введите сообщение..." />
     <button type="submit">Отправить</button>
 </form>
-
-<h3>Загрузка файла</h3>
-
-<InputFile OnChange="@(e => HandleFileSelected(e))" />
-
-@if (selectedFile != null)
-{
-    <p>Выбранный файл: @selectedFile.Name</p>
-}
-
-<button @onclick="UploadPhoto">Загрузить фото</button>
 
 @code {
     [Parameter]
@@ -48,54 +39,51 @@
 
     private List<Message> messages = new();
     private Message newMessage = new() { MovieId = MovieId };
+    private HubConnection hubConnection;
 
-    protected override async Task OnParametersSetAsync()
+    protected override async Task OnInitializedAsync()
     {
+        // Инициализация соединения SignalR
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/chatHub"))
+            .Build();
+
+        // Подписываемся на получение новых сообщений
+        hubConnection.On<string, string, int?>("ReceiveMessage", (user, message, movieId) =>
+        {
+            if (movieId == MovieId)
+            {
+                messages.Add(new Message
+                    {
+                        User = new User { Name = user },
+                        Content = message,
+                        MovieId = movieId
+                    });
+                StateHasChanged(); // Обновляем интерфейс
+            }
+        });
+
+        // Подключаемся к серверу
+        await hubConnection.StartAsync();
+
+        // Загружаем начальные сообщения
         messages = await Http.GetFromJsonAsync<List<Message>>($"api/chat/movie/{MovieId}");
     }
 
     private async Task SendNewMessage()
     {
         await Http.PostAsJsonAsync("api/chat", newMessage);
+
+        // Отправляем сообщение через SignalR
+        await hubConnection.SendAsync("SendMessageMov", AuthenticationStateProvider.GetUserName(), newMessage.Content, MovieId);
+
         messages.Add(newMessage);
         newMessage = new() { MovieId = MovieId };
     }
 
-
-    private IBrowserFile selectedFile;
-
-    // Обработчик выбора файла
-    private void HandleFileSelected(InputFileChangeEventArgs e)
+    public void Dispose()
     {
-        selectedFile = e.File;
+        // Закрываем соединение при выходе из компонента
+        hubConnection?.DisposeAsync().GetAwaiter().GetResult();
     }
-
-    // Метод для загрузки файла на сервер
-    private async Task UploadPhoto()
-    {
-        if (selectedFile == null)
-        {
-            Console.WriteLine("Файл не выбран.");
-            return;
-        }
-
-        var formData = new MultipartFormDataContent();
-        var fileContent = new StreamContent(selectedFile.OpenReadStream());
-
-        // Установка типа содержимого файла
-        fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(selectedFile.ContentType);
-        formData.Add(fileContent, "file", selectedFile.Name);
-
-        var response = await Http.PostAsync("api/chat/upload-photo", formData);
-
-        if (response.IsSuccessStatusCode)
-        {
-            Console.WriteLine("Файл успешно загружен!");
-        }
-        else
-        {
-            Console.WriteLine("Ошибка при загрузке файла.");
-        }
-    }
-
 }

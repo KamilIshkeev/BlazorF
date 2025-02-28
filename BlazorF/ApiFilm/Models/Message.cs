@@ -1,5 +1,6 @@
 ﻿namespace BlazorF.ApiFilm.Models
 {
+    // Models/Message.cs
     public class Message
     {
         public int Id { get; set; }
