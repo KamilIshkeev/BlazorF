@@ -24,21 +24,14 @@
     <input type="text" @bind="message" placeholder="Сообщение" />
     <button @onclick="SendMessage">Send</button>
 </div>
-@* <select @bind="selectedMovieTitle">
-    <option value="">--- --- \ --- - | - | - --- /Выберите фильм\ --- - | - | - --- / --- ---</option>
-    @foreach (var movie in movies)
-    {
-        <option @bind="movie" value="@movie.Title">@movie.Title</option> *@
-        @* <p>@movie.Title</p> *@
-@*     }
-</select> *@
+
 
 
 <select @bind="selectedMovieId">
     <option value="">-- Выберите фильм --</option>
     @foreach (var movie in movies)
     {
-        <option value="@movie.Id">@movie.Title</option>
+        <option value="@movie.Title">@movie.Title</option>
     }
 </select>
 
@@ -57,42 +50,53 @@
     HubConnection hubConnection;
     List<string> messages = new List<string>();
     // private List<Movie> movies = new List<Movie>();
+    private Movie _movie;
     private List<Movie> movies = new List<Movie>();
-    // {
-    //     new Movie { Id = 1, Title = "Фильм 1" },
-    //     new Movie { Id = 2, Title = "Фильм 2" },
-    //     new Movie { Id = 3, Title = "Фильм 3" }
-    // };
-    private string selectedMovieId;
+
+    public string selectedMovieId;
+    public int ID;
+    public string MovTitle;
 
 
+
+
+
+    private async Task LoadMovies()
+    {
+        try
+        {
+            var response = await Http.GetAsync("api/movies");
+            if (response.IsSuccessStatusCode)
+            {
+                movies = await response.Content.ReadFromJsonAsync<List<Movie>>();
+            }
+            else
+            {
+                ShowAlert($"Ошибка загрузки фильмов: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Ошибка: {ex.Message}");
+        }
+    }
 
 
     protected override async Task OnInitializedAsync()
     {
-        // try
-        // {
-        // //     var response = await Http.GetAsync("api/movies");
-        //     if (response.IsSuccessStatusCode)
-        //     {
-        // //         movies = await response.Content.ReadFromJsonAsync<List<Movie>>();
-        //     }
-        //     else
-        //     {
-        //         ShowAlert($"Ошибка загрузки фильмов: {response.StatusCode}");
-        //     }
-        // }
-        // catch (Exception ex)
-        // {
-        //     ShowAlert($"Ошибка: {ex.Message}");
-        // }
-        movies = Movies.movies;
+        await LoadMovies();
+        // var response = await Http.GetAsync("api/movies");
+        // movies = await response.Content.ReadFromJsonAsync<List<Movie>>();
+
         user = iUser;
         hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
+        // ID = Convert.ToInt32(selectedMovieId);
+        // _movie = await Http.GetFromJsonAsync<Movie>($"api/movies/{ID}");
         
-        hubConnection.On<string, string, string>("ReceiveMessage", (user, message, movie) =>
+        // MovTitle = _movie.Title;
+        hubConnection.On<string, string, string>("ReceiveMessage", (user, message, selectedMovieId /* MovTitle */) =>
         {
-            messages.Add($"{user}: {message} \n Фильм: {movie}");
+            messages.Add($"{user}: {message} \n (Фильм: { /* MovTitle */  selectedMovieId})");
             InvokeAsync(StateHasChanged);
 
         });
@@ -101,12 +105,47 @@
 
     async Task SendMessage()
     {
-        await hubConnection.SendAsync("SendMessage", user, message, movie);
+        // var ID = Convert.ToInt32(selectedMovieId);
+        // _movie = await Http.GetFromJsonAsync<Movie>($"api/movies/{ID}");
+        // var MovTitle = _movie.Title;
+        await hubConnection.SendAsync("SendMessage", user, message, selectedMovieId /* MovTitle */ );
         
         message = string.Empty;
 
+        if (string.IsNullOrEmpty(selectedMovieId) || string.IsNullOrEmpty(message))
+        {
+            ShowAlert("Выберите фильм и введите сообщение.");
+            return;
+        }
 
+        var newMessage = new Message
+            {
+                UserId = @Counter.idU.Id,
+                Content = message,
+                MovieId = ID
+            };
+
+        try
+        {
+            var response = await Http.PostAsJsonAsync("api/chat", newMessage);
+            if (response.IsSuccessStatusCode)
+            {
+                messages.Add($"{user}: {message} \n (Фильм: { /* MovTitle */  selectedMovieId})");
+                InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                ShowAlert($"Ошибка при отправке сообщения: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Ошибка: {ex.Message}");
+        }
+
+        message = string.Empty;
     }
+
 
     // async Task RegUser()
     // {
