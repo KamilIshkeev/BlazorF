@@ -13,38 +13,86 @@
 
 <h3>Chat</h3>
 
+<div>
+
+
+    @* <button @onclick="RegUser">Регистрация</button> *@
+</div>
 
 <div>
-	@foreach (var msg in messages)
-	{
-		<p>@msg</p>
-	}
-</div>
-<div>
-    <input type="text" @bind= "OtherUser" placeholder="Кому отправляю имя" />
-    <input type="text" @bind = "message" placeholder="Сообщение" />
+    <input type="text" @bind="movie" placeholder="Фильм" />
+    <input type="text" @bind="message" placeholder="Сообщение" />
     <button @onclick="SendMessage">Send</button>
 </div>
+@* <select @bind="selectedMovieTitle">
+    <option value="">--- --- \ --- - | - | - --- /Выберите фильм\ --- - | - | - --- / --- ---</option>
+    @foreach (var movie in movies)
+    {
+        <option @bind="movie" value="@movie.Title">@movie.Title</option> *@
+        @* <p>@movie.Title</p> *@
+@*     }
+</select> *@
 
+
+<select @bind="selectedMovieId">
+    <option value="">-- Выберите фильм --</option>
+    @foreach (var movie in movies)
+    {
+        <option value="@movie.Id">@movie.Title</option>
+    }
+</select>
+
+<div>
+    @foreach (var msg in messages)
+    {
+        <p>@msg</p>
+    }
+</div>
 
 @code {
-    private User user;
     string message = "";
-    public string iUser = Counter.idU.Name;
-    string OtherUser = "";
+    string user = "";
+    string iUser = @Counter.idU.Name;
+    string movie = "";
     HubConnection hubConnection;
     List<string> messages = new List<string>();
-    
+    // private List<Movie> movies = new List<Movie>();
+    private List<Movie> movies = new List<Movie>();
+    // {
+    //     new Movie { Id = 1, Title = "Фильм 1" },
+    //     new Movie { Id = 2, Title = "Фильм 2" },
+    //     new Movie { Id = 3, Title = "Фильм 3" }
+    // };
+    private string selectedMovieId;
+
+
 
 
     protected override async Task OnInitializedAsync()
     {
-        user = Counter.idU;
+        // try
+        // {
+        // //     var response = await Http.GetAsync("api/movies");
+        //     if (response.IsSuccessStatusCode)
+        //     {
+        // //         movies = await response.Content.ReadFromJsonAsync<List<Movie>>();
+        //     }
+        //     else
+        //     {
+        //         ShowAlert($"Ошибка загрузки фильмов: {response.StatusCode}");
+        //     }
+        // }
+        // catch (Exception ex)
+        // {
+        //     ShowAlert($"Ошибка: {ex.Message}");
+        // }
+        movies = Movies.movies;
+        user = iUser;
         hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
-
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        
+        hubConnection.On<string, string, string>("ReceiveMessage", (user, message, movie) =>
         {
-            messages.Add($"{user}: {message}");
+            messages.Add($"{user}: {message} \n Фильм: {movie}");
             InvokeAsync(StateHasChanged);
 
         });
@@ -53,18 +101,178 @@
 
     async Task SendMessage()
     {
-        await hubConnection.SendAsync("SendMessage",OtherUser, iUser, message);
+        await hubConnection.SendAsync("SendMessage", user, message, movie);
+        
+        message = string.Empty;
+
+
+    }
+
+    // async Task RegUser()
+    // {
+    //     await hubConnection.SendAsync("RegisterUser", iUser);
+    //     // message = string.Empty;
+    // }
+
+
+    private void ShowAlert(string message)
+    {
+        JS.InvokeVoidAsync("alert", message);
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+@* 
+
+
+<PageTitle>Weather</PageTitle>
+
+<h3>Chat</h3>
+
+@if (Vhod == false)
+{ 
+    <div>
+        <button @onclick="RegUser">Start</button>
+    </div>
+}
+else
+{
+
+    <div>
+      <input type="text" @bind= "OtherUser" placeholder="Кому отправляю имя" />
+        <select @bind="selectedMovieTitle">
+            <option value="">-- Выберите фильм --</option>
+            @foreach (var movie in movies)
+        {
+            <option value="@movie.Title">@movie.Title</option>
+        }
+    </select>
+
+    <p>Вы выбрали: @selectedMovieTitle</p>
+    <input type="text" @bind="iUser" placeholder="@Counter.idU.Name" />
+    <input type="text" @bind = "message" placeholder="Сообщение" />
+    <button @onclick="SendMessage">Send</button>
+</div>
+<div>
+    @foreach (var msg in messages)
+    {
+        <p>@msg</p>
+    }
+</div>
+}
+
+@code {
+    private User user;
+    string message = "";
+    public string iUser = "";
+    string OtherUser = "";
+    HubConnection hubConnection;
+    List<string> messages = new List<string>();
+    private List<Movie> movies = new List<Movie>();
+    private string selectedMovieTitle;
+    private bool Vhod = false;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
+
+        hubConnection.On<string, string>("ReceiveMessage", (iUser, message) =>
+        {
+            messages.Add($"{iUser}: {message}");
+            InvokeAsync(StateHasChanged);
+
+        });
+        await hubConnection.StartAsync();
+    }
+
+    async Task SendMessage()
+    {
+        
+        await hubConnection.SendAsync("SendMessage", /* OtherUser, */ iUser, message);
         messages.Add($"{iUser}: {message}");
         message = string.Empty;
 
 
     }
 
-    async Task RegUser()
-    {
-        await hubConnection.SendAsync("RegisterUser", iUser);
-        // message = string.Empty;
-    }
 
 
-}
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     user = Counter.idU;
+    //     hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
+
+    //     hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+    //     {
+    //         messages.Add($"{Counter.idU.Name}: {message}");
+    //         InvokeAsync(StateHasChanged);
+
+    //     });
+    //     await hubConnection.StartAsync();
+    // }
+
+    // async Task SendMessage()
+    // {
+    //     await hubConnection.SendAsync("SendMessage", /* OtherUser, */ iUser, message);
+    //     messages.Add($"{iUser}: {message}");
+    //     message = string.Empty;
+
+
+    // }
+
+    // async Task RegUser()
+    // {
+    //     await hubConnection.SendAsync("RegisterUser", iUser);
+    //     Vhod = false;
+    //     // message = string.Empty;
+    // }
+
+
+
+//     protected override async Task OnInitializedAsync()
+//     {
+//         user = Counter.idU;
+//         movies = await Http.GetFromJsonAsync<List<Movie>>("api/movies");
+//         hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
+// RegUser();
+//         hubConnection.On<string, string, string>("ReceiveMessage", (user, message, movName) =>
+//         {
+//             messages.Add($"{user}: {message} \n Фильм: {movName}");
+//             InvokeAsync(StateHasChanged);
+
+//         });
+//         await hubConnection.StartAsync();
+        
+//     }
+
+//     async Task SendMessage()
+//     {
+//         await hubConnection.SendAsync("SendMessage", OtherUser, iUser, message, selectedMovieTitle);
+//         messages.Add($"{iUser}: {message} \n Фильм: {selectedMovieTitle}");
+//         message = string.Empty;
+
+
+//     }
+
+//     async Task RegUser()
+//     {
+//         await hubConnection.SendAsync("RegisterUser", Counter.idU.Name);
+//         // message = string.Empty;
+//     }
+
+
+} *@
