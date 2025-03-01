@@ -92,7 +92,7 @@
         hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
         // ID = Convert.ToInt32(selectedMovieId);
         // _movie = await Http.GetFromJsonAsync<Movie>($"api/movies/{ID}");
-        
+
         // MovTitle = _movie.Title;
         hubConnection.On<string, string, string>("ReceiveMessage", (user, message, selectedMovieId /* MovTitle */) =>
         {
@@ -108,26 +108,28 @@
         // var ID = Convert.ToInt32(selectedMovieId);
         // _movie = await Http.GetFromJsonAsync<Movie>($"api/movies/{ID}");
         // var MovTitle = _movie.Title;
+        _movie = await Http.GetFromJsonAsync<Movie>($"api/movies/title/{selectedMovieId}");
+        ID = _movie.Id;
         await hubConnection.SendAsync("SendMessage", user, message, selectedMovieId /* MovTitle */ );
         
         message = string.Empty;
 
-        if (string.IsNullOrEmpty(selectedMovieId) || string.IsNullOrEmpty(message))
-        {
-            ShowAlert("Выберите фильм и введите сообщение.");
-            return;
-        }
+        // if (string.IsNullOrEmpty(selectedMovieId) || string.IsNullOrEmpty(message))
+        // {
+        //     ShowAlert("Выберите фильм и введите сообщение.");
+        //     return;
+        // }
 
         var newMessage = new Message
             {
-                UserId = @Counter.idU.Id,
+                UserId = Counter.idU.Id,
                 Content = message,
                 MovieId = ID
             };
 
-        try
-        {
-            var response = await Http.PostAsJsonAsync("api/chat", newMessage);
+        // try
+        // {
+            var response = await Http.PostAsJsonAsync("api/Chat", newMessage);
             if (response.IsSuccessStatusCode)
             {
                 messages.Add($"{user}: {message} \n (Фильм: { /* MovTitle */  selectedMovieId})");
@@ -137,11 +139,11 @@
             {
                 ShowAlert($"Ошибка при отправке сообщения: {response.StatusCode}");
             }
-        }
-        catch (Exception ex)
-        {
-            ShowAlert($"Ошибка: {ex.Message}");
-        }
+        // }
+        // catch (Exception ex)
+        // {
+        //     ShowAlert($"Ошибка: {ex.Message}");
+        // }
 
         message = string.Empty;
     }
