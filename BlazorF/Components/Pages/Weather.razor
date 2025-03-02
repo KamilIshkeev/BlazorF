@@ -6,41 +6,247 @@
 @inject HttpClient Http
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
+@using BlazorF.ApiFilm
 
 
 
-<PageTitle>Weather</PageTitle>
-
-<h3>Chat</h3>
-
-<div>
-
-
-    @* <button @onclick="RegUser">Регистрация</button> *@
-</div>
-
-<div>
-    <input type="text" @bind="movie" placeholder="Фильм" />
-    <input type="text" @bind="message" placeholder="Сообщение" />
-    <button @onclick="SendMessage">Send</button>
-</div>
-
-
-
-<select @bind="selectedMovieId">
-    <option value="">-- Выберите фильм --</option>
-    @foreach (var movie in movies)
-    {
-        <option value="@movie.Title">@movie.Title</option>
+<style>
+    /* Общий стиль для страницы */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 20px;
     }
-</select>
+
+    /* Заголовок */
+    h3 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    /* Список сообщений */
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        max-height: 400px; /* Ограничение высоты списка */
+        overflow-y: auto; /* Добавление прокрутки */
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fff;
+        padding: 10px;
+    }
+
+    /* Элементы списка */
+    li {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+        li:last-child {
+            border-bottom: none; /* Убираем границу для последнего элемента */
+        }
+
+    /* Имя пользователя */
+    strong {
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    /* Текст сообщения */
+    span {
+        margin-right: 10px;
+        font-size: 14px;
+        color: #555;
+    }
+
+    /* Изображения */
+    img {
+        max-width: 200px;
+        border-radius: 8px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    /* Название фильма */
+    small {
+        color: #888;
+        font-size: 12px;
+    }
+
+    /* Форма отправки сообщений */
+    div.form-container {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    input[type="text"],
+    input[type="url"] {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    button {
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+    /* Выпадающий список фильмов */
+    select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+</style>
+
+
+@* <h3>Weather Chat</h3>
+
+<ul>
+    @foreach (var msg in messages1)
+    {
+        @foreach (var Us in usr)
+        {
+            @if (msg.UserId == Us.Id)
+            {
+                @foreach (var mo in movies)
+                {
+                    @if (msg.MovieId == mo.Id)
+                    {
+                        <li>
+                            <strong>@Us.Name:</strong>
+                            @if (!string.IsNullOrEmpty(msg.Content))
+                            {
+                                <span>@msg.Content</span>
+                            }
+                            @if (!string.IsNullOrEmpty(msg.Url))
+                            {
+                                <img src="@msg.Url" alt="Uploaded photo" style="max-width: 200px;" />
+                            }
+                            <small>(Фильм: @mo.Title)</small>
+                        </li>
+
+                    }
+                }
+            }
+        }
+    }
+</ul>
+
 
 <div>
+	<input @bind-value="message" placeholder="Type a message..." />
+    <input placeholder="Enter image URL" @bind-value="photoUrl" />
+    <button @onclick="SendMessage">Send</button>
+    <select @bind="selectedMovieId">
+        <option value="">-- Выберите фильм --</option>
+        @foreach (var movie in movies)
+        {
+            <option value="@movie.Id">@movie.Title</option>
+        }
+    </select>
+</div>
+
+
+<ul>
+    @foreach (var msg in messages1)
+    {
+        @foreach (var Us in usr)
+        {
+            @if (msg.UserId == Us.Id)
+            {
+                @foreach (var mo in movies)
+               {
+                 @if (msg.MovieId == mo.Id)
+                {
+                 <li>
+                    <strong>@Us.Name:</strong>
+                    @if (!string.IsNullOrEmpty(msg.Content))
+                    {
+                        <span>@msg.Content</span>
+                    }
+                    @if (!string.IsNullOrEmpty(msg.Url))
+                    {
+                        <img src="@msg.Url" alt="Uploaded photo" style="max-width: 200px;" />
+                    }
+                            <small>(Фильм: @mo.Title)</small>
+                 </li>
+
+                }
+               }
+            }
+        }
+    }
+</ul> *@
+<h3>Weather Chat</h3>
+<p>Current Time: @currentTime</p>
+<ul>
+    @foreach (var msg in messages1)
+    {
+        @foreach (var Us in usr)
+        {
+            @if (msg.UserId == Us.Id)
+            {
+                @foreach (var mo in movies)
+                {
+                    @if (msg.MovieId == mo.Id)
+                    {
+                        <li>
+                            <strong>@Us.Name:</strong>
+                            @if (!string.IsNullOrEmpty(msg.Content))
+                            {
+                                <span>@msg.Content</span>
+                            }
+                            @if (!string.IsNullOrEmpty(msg.Url))
+                            {
+                                <img src="@msg.Url" alt="Uploaded photo" />
+                            }
+                            <small>(Фильм: @mo.Title)</small>
+                        </li>
+                    }
+                }
+            }
+        }
+    }
+</ul>
+
+<div class="form-container">
+    <input @bind-value="message" placeholder="Type a message..." />
+    <input placeholder="Enter image URL" @bind-value="photoUrl" />
+    <button @onclick="SendMessage">Send</button>
+    <select @bind="selectedMovieId">
+        <option value="">-- Выберите фильм --</option>
+        @foreach (var movie in movies)
+        {
+            <option value="@movie.Id">@movie.Title</option>
+        }
+    </select>
+</div>
+
+@* <ul>
+
     @foreach (var msg in messages)
     {
-        <p>@msg</p>
+        <li>@msg</li>
     }
-</div>
+</ul> *@
 
 @code {
     string message = "";
@@ -49,20 +255,27 @@
     string movie = "";
     HubConnection hubConnection;
     List<string> messages = new List<string>();
-    // private List<Movie> movies = new List<Movie>();
-    private Movie _movie;
+    List<Message> messages1 = new List<Message>();
     private List<Movie> movies = new List<Movie>();
-
+    private Movie? _movie;
     public string selectedMovieId;
     public int ID;
     public string MovTitle;
-
-
+    public int idmov;
+    public int idUs = @Counter.idU.Id;
+    private string photoUrl = "";
+    private int selectedMessageId;
+    public string NameU;
+    public UserMes userMes;
+    private List<User> usr = new List<User>();
+    private string currentTime = DateTime.Now.ToString("HH:mm:ss");
+    private System.Timers.Timer timer;
 
 
 
     private async Task LoadMovies()
     {
+
         try
         {
             var response = await Http.GetAsync("api/movies");
@@ -74,6 +287,7 @@
             {
                 ShowAlert($"Ошибка загрузки фильмов: {response.StatusCode}");
             }
+
         }
         catch (Exception ex)
         {
@@ -81,79 +295,161 @@
         }
     }
 
-
-    protected override async Task OnInitializedAsync()
+    private async Task LoadMessage()
     {
-        await LoadMovies();
-        // var response = await Http.GetAsync("api/movies");
-        // movies = await response.Content.ReadFromJsonAsync<List<Movie>>();
 
-        user = iUser;
-        hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
-        // ID = Convert.ToInt32(selectedMovieId);
-        // _movie = await Http.GetFromJsonAsync<Movie>($"api/movies/{ID}");
-
-        // MovTitle = _movie.Title;
-        hubConnection.On<string, string, string>("ReceiveMessage", (user, message, selectedMovieId /* MovTitle */) =>
+        try
         {
-            messages.Add($"{user}: {message} \n (Фильм: { /* MovTitle */  selectedMovieId})");
-            InvokeAsync(StateHasChanged);
-
-        });
-        await hubConnection.StartAsync();
-    }
-
-    async Task SendMessage()
-    {
-        // var ID = Convert.ToInt32(selectedMovieId);
-        // _movie = await Http.GetFromJsonAsync<Movie>($"api/movies/{ID}");
-        // var MovTitle = _movie.Title;
-        _movie = await Http.GetFromJsonAsync<Movie>($"api/movies/title/{selectedMovieId}");
-        ID = _movie.Id;
-        await hubConnection.SendAsync("SendMessage", user, message, selectedMovieId /* MovTitle */ );
-        
-        message = string.Empty;
-
-        // if (string.IsNullOrEmpty(selectedMovieId) || string.IsNullOrEmpty(message))
-        // {
-        //     ShowAlert("Выберите фильм и введите сообщение.");
-        //     return;
-        // }
-
-        var newMessage = new Message
-            {
-                UserId = Counter.idU.Id,
-                Content = message,
-                MovieId = ID
-            };
-
-        // try
-        // {
-            var response = await Http.PostAsJsonAsync("api/Chat", newMessage);
+            var response = await Http.GetAsync("api/Chat");
             if (response.IsSuccessStatusCode)
             {
-                messages.Add($"{user}: {message} \n (Фильм: { /* MovTitle */  selectedMovieId})");
-                InvokeAsync(StateHasChanged);
+                messages1 = await response.Content.ReadFromJsonAsync<List<Message>>();
+
             }
             else
             {
-                ShowAlert($"Ошибка при отправке сообщения: {response.StatusCode}");
+                ShowAlert($"Ошибка загрузки сообщений: {response.StatusCode}");
             }
-        // }
-        // catch (Exception ex)
-        // {
-        //     ShowAlert($"Ошибка: {ex.Message}");
-        // }
 
-        message = string.Empty;
+
+        }
+        catch (Exception ex)
+        {
+            // ShowAlert($"Ошибка: {ex.Message}");
+        }
+
+
     }
 
 
-    // async Task RegUser()
-    // {
-    //     await hubConnection.SendAsync("RegisterUser", iUser);
-    //     // message = string.Empty;
-    // }
+    private async Task LoadUser()
+    {
+
+        try
+        {
+            var response = await Http.GetAsync("api/User");
+            if (response.IsSuccessStatusCode)
+            {
+
+                usr = await response.Content.ReadFromJsonAsync<List<User>>();
+            }
+            else
+            {
+                ShowAlert($"Ошибка загрузки сообщений: {response.StatusCode}");
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            // ShowAlert($"Ошибка: {ex.Message}");
+        }
+
+
+    }
+
+    private void OnTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+        // Обновляем состояние
+        currentTime = DateTime.Now.ToString("HH:mm:ss");
+
+        // Уведомляем Blazor о необходимости перерисовать интерфейс
+        InvokeAsync(StateHasChanged);
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+        selectedMovieId = "Пусто";
+        await LoadMessage();
+        
+        
+        await LoadMovies();
+        await LoadUser();
+
+        user = iUser;
+
+        hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
+        try
+        {
+            hubConnection.On<string, string, string>("ReceiveMessage", (user, message, movie) =>
+            {
+
+                var newMessage = new Message
+                    {
+                        UserId = int.Parse(iUser),
+                        Content = message,
+                        MovieId = ID,
+                        Url = photoUrl
+                    };
+
+                messages1.Add(newMessage);
+                // messages.Add($"{user}: {message} \n (Фильм: {movie})");
+                InvokeAsync(StateHasChanged);
+
+            });
+            InvokeAsync(StateHasChanged);
+            hubConnection.On<string, string, string>("ReceivePhoto", (user, photoPath, movie) =>
+            {
+
+                var newMessage = new Message
+                    {
+                        UserId = idUs,
+                        Content = message,
+                        MovieId = ID,
+                        Url = photoUrl
+                    };
+
+                messages1.Add(newMessage);
+                // messages.Add($"{user}: {message} \n (Фильм: {movie})");
+                InvokeAsync(StateHasChanged);
+
+            });
+            InvokeAsync(StateHasChanged);
+            // hubConnection.On<string, string, string>("ReceivePhoto", (user, photoPath, movie) =>
+            // {
+            //     messages.Add($"{user} shared a photo: {photoPath} \n (Фильм: {movie})");
+            //     InvokeAsync(StateHasChanged);
+            // });
+
+
+            await hubConnection.StartAsync();
+        }
+        catch
+        {
+            ShowAlert($"Error sending message: {hubConnection.State}");
+        }
+
+
+        // Создаем таймер, который срабатывает каждые 5 секунд (5000 мс)
+        timer = new System.Timers.Timer(5000);
+        timer.Elapsed += OnTimerElapsed;
+        timer.AutoReset = true; // Таймер будет срабатывать повторно
+        timer.Enabled = true;   // Запускаем таймер
+
+
+    }
+
+
+    async Task SendMessage()
+    {
+        if (selectedMovieId != null)
+        {
+            idmov = int.Parse(selectedMovieId);
+        }
+        
+        // Call FilmConnect asynchronously and await its completion
+        await FilmConnect();
+        
+        
+        message = string.Empty;
+        NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
+    }
+
+
+
+
 
 
     private void ShowAlert(string message)
@@ -161,159 +457,148 @@
         JS.InvokeVoidAsync("alert", message);
     }
 
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-@* 
-
-
-<PageTitle>Weather</PageTitle>
-
-<h3>Chat</h3>
-
-@if (Vhod == false)
-{ 
-    <div>
-        <button @onclick="RegUser">Start</button>
-    </div>
-}
-else
-{
-
-    <div>
-      <input type="text" @bind= "OtherUser" placeholder="Кому отправляю имя" />
-        <select @bind="selectedMovieTitle">
-            <option value="">-- Выберите фильм --</option>
-            @foreach (var movie in movies)
+    public async Task Film()
+    {
+        _movie = await Http.GetFromJsonAsync<Movie>($"api/movies/{idmov}");
+        if (_movie == null)
         {
-            <option value="@movie.Title">@movie.Title</option>
+            ShowAlert("Received an empty movie object.");
+            return;
         }
-    </select>
 
-    <p>Вы выбрали: @selectedMovieTitle</p>
-    <input type="text" @bind="iUser" placeholder="@Counter.idU.Name" />
-    <input type="text" @bind = "message" placeholder="Сообщение" />
-    <button @onclick="SendMessage">Send</button>
-</div>
-<div>
-    @foreach (var msg in messages)
-    {
-        <p>@msg</p>
+        ID = _movie.Id;
+        MovTitle = _movie.Title;
+
+
+
     }
-</div>
+
+
+    public async Task FilmConnect()
+    {
+        try
+        {
+
+
+            await Film();
+
+
+            var newMessage = new Message
+                {
+                    UserId = idUs,
+                    Content = message,
+                    MovieId = ID,
+                    Url = photoUrl
+                };
+
+            var response = await Http.PostAsJsonAsync("api/Chat", newMessage);
+            if (response.IsSuccessStatusCode)
+            {
+
+               
+
+                try
+                {
+                    if (hubConnection.State == HubConnectionState.Connected)
+                    {
+                        
+                        await hubConnection.SendAsync("SendMessage", user, message, MovTitle);
+                        InvokeAsync(StateHasChanged);
+                        if (photoUrl != "")
+                        {
+                            await hubConnection.SendAsync("SendPhoto", user, photoUrl, MovTitle);
+                            InvokeAsync(StateHasChanged);
+                        }
+                        
+                    }
+                    else
+                    {
+                        ShowAlert("Hub connection is not established.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ShowAlert($"Error sending message: {ex.Message}");
+                }
+
+                // // Send the message via SignalR
+                // await hubConnection.SendAsync("SendMessage", user, message, MovTitle);
+            }
+            else
+            {
+                ShowAlert($"Ошибка при отправке сообщения: {response.StatusCode}");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Error: {ex.Message}");
+        }
+        
+    }
+
+
+
+
+
+
+
+
+
+    public class UserMes
+    {
+        public int Id { get; set; }
+        public string Uname { get; set; }
+    }
+
+    
+
+   
+
+
+
+
+    public void Dispose()
+    {
+        // Освобождаем ресурсы при уничтожении компонента
+        timer?.Dispose();
+    }
+
+
+
 }
 
-@code {
-    private User user;
-    string message = "";
-    public string iUser = "";
-    string OtherUser = "";
-    HubConnection hubConnection;
-    List<string> messages = new List<string>();
-    private List<Movie> movies = new List<Movie>();
-    private string selectedMovieTitle;
-    private bool Vhod = false;
 
 
 
-    protected override async Task OnInitializedAsync()
-    {
-        hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
-
-        hubConnection.On<string, string>("ReceiveMessage", (iUser, message) =>
-        {
-            messages.Add($"{iUser}: {message}");
-            InvokeAsync(StateHasChanged);
-
-        });
-        await hubConnection.StartAsync();
-    }
-
-    async Task SendMessage()
-    {
-        
-        await hubConnection.SendAsync("SendMessage", /* OtherUser, */ iUser, message);
-        messages.Add($"{iUser}: {message}");
-        message = string.Empty;
-
-
-    }
+    
 
 
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     user = Counter.idU;
-    //     hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
-
-    //     hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
-    //     {
-    //         messages.Add($"{Counter.idU.Name}: {message}");
-    //         InvokeAsync(StateHasChanged);
-
-    //     });
-    //     await hubConnection.StartAsync();
-    // }
-
-    // async Task SendMessage()
-    // {
-    //     await hubConnection.SendAsync("SendMessage", /* OtherUser, */ iUser, message);
-    //     messages.Add($"{iUser}: {message}");
-    //     message = string.Empty;
-
-
-    // }
-
-    // async Task RegUser()
-    // {
-    //     await hubConnection.SendAsync("RegisterUser", iUser);
-    //     Vhod = false;
-    //     // message = string.Empty;
-    // }
 
 
 
-//     protected override async Task OnInitializedAsync()
-//     {
-//         user = Counter.idU;
-//         movies = await Http.GetFromJsonAsync<List<Movie>>("api/movies");
-//         hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
-// RegUser();
-//         hubConnection.On<string, string, string>("ReceiveMessage", (user, message, movName) =>
-//         {
-//             messages.Add($"{user}: {message} \n Фильм: {movName}");
-//             InvokeAsync(StateHasChanged);
-
-//         });
-//         await hubConnection.StartAsync();
-        
-//     }
-
-//     async Task SendMessage()
-//     {
-//         await hubConnection.SendAsync("SendMessage", OtherUser, iUser, message, selectedMovieTitle);
-//         messages.Add($"{iUser}: {message} \n Фильм: {selectedMovieTitle}");
-//         message = string.Empty;
 
 
-//     }
-
-//     async Task RegUser()
-//     {
-//         await hubConnection.SendAsync("RegisterUser", Counter.idU.Name);
-//         // message = string.Empty;
-//     }
 
 
-} *@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
