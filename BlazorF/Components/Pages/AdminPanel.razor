@@ -10,265 +10,330 @@
 
 <style>
     body {
-        background-color: #f9f9f9;
-        font-family: 'Arial', sans-serif;
-        margin: 0;
-        padding: 0;
+    background-color: #f9f9f9;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
     }
 
     .container {
-        width: 100%;
-        padding: 20px;
-        background-color: #ffffff;
-        border-radius: 10px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        box-sizing: border-box;
+    width: 100%;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
     }
 
     h3, h4 {
-        color: #1E90FF;
-        text-align: center;
+    color: #1E90FF;
+    text-align: center;
     }
 
     .table {
-        width: 100%;
-        margin-top: 20px;
-        border-collapse: collapse;
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
     }
 
     .table th, .table td {
-        padding: 12px;
-        border: 1px solid #dee2e6;
-        text-align: center;
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    text-align: center;
     }
 
     .table th {
-            background-color: #1E90FF;
-        color: white;
+    background-color: #1E90FF;
+    color: white;
     }
 
     .btn-warning {
-        background-color: #ffc107;
-        border-color: #ffc107;
+    background-color: #ffc107;
+    border-color: #ffc107;
     }
 
     .btn-danger {
-        background-color: #dc3545;
-        border-color: #dc3545;
+    background-color: #dc3545;
+    border-color: #dc3545;
     }
 
     .btn-danger:hover,
     .btn-warning:hover {
-        opacity: 0.8;
+    opacity: 0.8;
     }
 
     .form-group {
-        margin-bottom: 15px;
+    margin-bottom: 15px;
     }
 
     .btn-primary {
-        background-color: #1E90FF;
-        border-color: #1E90FF;
+    background-color: #1E90FF;
+    border-color: #1E90FF;
     }
 
     .btn-secondary {
-        margin-left: 20px;
-        background-color: #6c757d;
-        border-color: #6c757d;
+    margin-left: 20px;
+    background-color: #6c757d;
+    border-color: #6c757d;
     }
 
     .btn-primary:hover,
     .btn-secondary:hover {
-        opacity: 0.8;
+    opacity: 0.8;
     }
 
 
-        .table th, .table td {
-            padding: 12px;
-            border: 1px solid #dee2e6;
-            margin-left: auto;
-            margin-right: auto;
-            width: 6em;
-            min-height: 10em;
-            display: table-cell;
-            vertical-align: middle
-        
-        }
+    .table th, .table td {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    margin-left: auto;
+    margin-right: auto;
+    width: 6em;
+    min-height: 10em;
+    display: table-cell;
+    vertical-align: middle
 
-        .table th {
-            background-color: #1E90FF;
-            color: white;
-            margin-left: auto;
-            margin-right: auto;
-            width: 6em;
-            min-height: 10em;
-            display: table-cell;
-            vertical-align: middle
-        
-        }
+    }
+
+    .table th {
+    background-color: #1E90FF;
+    color: white;
+    margin-left: auto;
+    margin-right: auto;
+    width: 6em;
+    min-height: 10em;
+    display: table-cell;
+    vertical-align: middle
+
+    }
 
 
     .btn-perehod {
-        background-color: #32CD32;
-        border-color: #32CD32;
-        text-align: center;
-        display: flex;
-        margin: 0 auto;
+    background-color: #32CD32;
+    border-color: #32CD32;
+    text-align: center;
+    display: flex;
+    margin: 0 auto;
     }
 
     .btn-perehod:hover {
-            background-color: #98FB98;
-            border-color: #98FB98;
+    background-color: #98FB98;
+    border-color: #98FB98;
     }
+
+    img {
+        max-width: 100px;
+        border-radius: 8px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    /* .button-container {
+        display: flex;
+    } */
 
 </style>
 
-
-@if (isVariable)
+@if (isVariable1)
 {
-<div class="container">
-    <h3>Управление пользователями</h3>
-    <h4>Список пользователей</h4>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Имя</th>
-                <th>Email</th>
-                <th>Описание</th>
-                <th>Пароль</th>
-                <th>Роль</th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var user in users)
-            {
-                <tr>
-                    <td>@user.Name</td>
-                    <td>@user.Email</td>
-                    <td>@user.Description</td>
-                    <td>@user.Password</td>
-                    <td>@user.Role</td>
-                    <td>
-                        <button @onclick="() => EditUser(user)" class="btn btn-warning">Редактировать</button>
-                        <button @onclick="() => DeleteUser(user.Id)" class="btn btn-danger">Удалить</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    @if (isVariable)
+    {
+        <div class="container">
+            <h3>Управление пользователями</h3>
+            <h4>Список пользователей</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Имя</th>
+                        <th>Email</th>
+                        <th>Описание</th>
+                        <th>Пароль</th>
+                        <th>Роль</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in users)
+                    {
+                        <tr>
+                            <td>@user.Name</td>
+                            <td>@user.Email</td>
+                            <td>@user.Description</td>
+                            <td>@user.Password</td>
+                            <td>@user.Role</td>
+                            <td>
+                                <button @onclick="() => EditUser(user)" class="btn btn-warning">Редактировать</button>
+                                <button @onclick="() => DeleteUser(user.Id)" class="btn btn-danger">Удалить</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
 
-    <h4>@(isEditing ? "Редактировать пользователя" : "Добавить нового пользователя")</h4>
-    <EditForm Model="newUser" OnValidSubmit="isEditing ? HandleUpdateUser : HandleCreateUser">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <div class="form-group">
-            <InputText @bind-Value="newUser.Name" placeholder="Имя" class="form-control" />
+            <h4>@(isEditing ? "Редактировать пользователя" : "Добавить нового пользователя")</h4>
+            <EditForm Model="newUser" OnValidSubmit="isEditing ? HandleUpdateUser : HandleCreateUser">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="form-group">
+                    <InputText @bind-Value="newUser.Name" placeholder="Имя" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <InputText @bind-Value="newUser.Email" placeholder="Email" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <InputText @bind-Value="newUser.Description" placeholder="Описание" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <InputText @bind-Value="newUser.Password" type="password" placeholder="Пароль" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <InputText @bind-Value="newUser.Role" type="role" placeholder="Роль" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary">@((isEditing) ? "Сохранить" : "Добавить пользователя")</button>
+                @if (isEditing)
+                {
+                    <button type="button" class="btn btn-secondary" @onclick="ResetForm">Отмена</button>
+                }
+            </EditForm>
+            <div style="white-space: nowrap;">
+                <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleFormM">Movie</button>
+                <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleForm1">Message</button>
+			</div>
         </div>
-        <div class="form-group">
-            <InputText @bind-Value="newUser.Email" placeholder="Email" class="form-control" />
+    }
+    else
+    {
+        <div class="container">
+            <h3>Управление фильмами (Admin)</h3>
+            <h4>Список фильмов</h4>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Url</th>
+                        <th>Название</th>
+                        <th>Жанр</th>
+                        <th>Рейтинг</th>
+                        <th>Дата выхода</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var movie in movies)
+                    {
+                        <tr>
+                            <img src="@movie.ImageUrl" alt="@movie.Title" />
+                            <td>@movie.Title</td>
+                            <td>@movie.Genre</td>
+                            <td>@movie.Rating</td>
+                            <td>@movie.ReleaseDate.ToShortDateString()</td>
+                            <td>
+                                <button @onclick="() => EditMovie(movie)" class="btn btn-warning">Редактировать</button>
+                                <button @onclick="() => DeleteMovie(movie.Id)" class="btn btn-danger">Удалить</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            <h4>@((isEditing) ? "Редактировать фильм" : "Добавить новый фильм")</h4>
+            <EditForm Model="newMovie" OnValidSubmit="isEditing ? HandleUpdateMovie : HandleCreateMovie" FormName="movieForm">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="form-group">
+                    <label for="Title">Название:</label>
+                    <InputText id="Title" @bind-Value="newMovie.Title" placeholder="Название" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="Description">Описание:</label>
+                    <InputTextArea id="Description" @bind-Value="newMovie.Description" placeholder="Описание" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="Genre">Жанр:</label>
+                    <InputText id="Genre" @bind-Value="newMovie.Genre" placeholder="Жанр" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="ReleaseDate">Дата выхода:</label>
+                    <InputDate id="ReleaseDate" @bind-Value="newMovie.ReleaseDate" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="Rating">Рейтинг:</label>
+                    <InputNumber id="Rating" @bind-Value="newMovie.Rating" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label for="ImageUrl">URL изображения:</label>
+                    <InputText id="ImageUrl" @bind-Value="newMovie.ImageUrl" placeholder="URL изображения" class="form-control" />
+                </div>
+                <button type="submit" class="btn btn-primary">@((isEditing) ? "Сохранить" : "Добавить фильм")</button>
+                @if (isEditing)
+                {
+                    <button type="button" class="btn btn-secondary" @onclick="ResetForm">Отмена</button>
+                }
+            </EditForm>
+            <div style="white-space: nowrap;">
+                <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleFormU">User</button>
+                <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleForm1">Message</button>
+			</div>
         </div>
-        <div class="form-group">
-            <InputText @bind-Value="newUser.Description" placeholder="Описание" class="form-control" />
-        </div>
-        <div class="form-group">
-            <InputText @bind-Value="newUser.Password" type="password" placeholder="Пароль" class="form-control" />
-        </div>
-        <div class="form-group">
-            <InputText @bind-Value="newUser.Role" type="role" placeholder="Роль" class="form-control" />
-        </div>
-        <button type="submit" class="btn btn-primary">@((isEditing) ? "Сохранить" : "Добавить пользователя")</button>
-        @if (isEditing)
-        {
-            <button type="button" class="btn btn-secondary" @onclick="ResetForm">Отмена</button>
-        }
-    </EditForm>
-		<button type="button" class="btn btn-perehod" @onclick="ToggleForm">Movie</button>
-	</div>
+
+
+    }
 }
 else
 {
     <div class="container">
-        <h3>Управление фильмами (Admin)</h3>
-        <h4>Список фильмов</h4>
+        <h3>Управление сообщениями</h3>
+        <h4>Список сообщений</h4>
         <table class="table">
             <thead>
                 <tr>
-                    <th>Url</th>
-                    <th>Название</th>
-                    <th>Жанр</th>
-                    <th>Рейтинг</th>
-                    <th>Дата выхода</th>
+                    <th>ID</th>
+                    <th>Текст</th>
+                    <th>ID Пользователя</th>
+                    <th>ID Фильма</th>
+                    <th>Дата создания</th>
+                    <th>Картинка</th>
                     <th>Действия</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var movie in movies)
+                @foreach (var msg in messages1)
                 {
                     <tr>
-                        <img src="@movie.ImageUrl" alt="@movie.Title" />
-                        <td>@movie.Title</td>
-                        <td>@movie.Genre</td>
-                        <td>@movie.Rating</td>
-                        <td>@movie.ReleaseDate.ToShortDateString()</td>
+                        <td>@msg.Id</td>
+                        <td>@msg.Content</td>
+                        <td>@msg.UserId</td>
+                        <td>@msg.MovieId</td>
+                        <td>@msg.CreatedAt</td>
+                        <td><img src="@msg.Url"/></td>
                         <td>
-                            <button @onclick="() => EditMovie(movie)" class="btn btn-warning">Редактировать</button>
-                            <button @onclick="() => DeleteMovie(movie.Id)" class="btn btn-danger">Удалить</button>
+                            <button @onclick="() => DeleteMessage(msg.Id)" class="btn btn-danger">Удалить</button>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
-        <h4>@((isEditing) ? "Редактировать фильм" : "Добавить новый фильм")</h4>
-        <EditForm Model="newMovie" OnValidSubmit="isEditing ? HandleUpdateMovie : HandleCreateMovie" FormName="movieForm">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-            <div class="form-group">
-                <label for="Title">Название:</label>
-                <InputText id="Title" @bind-Value="newMovie.Title" placeholder="Название" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label for="Description">Описание:</label>
-                <InputTextArea id="Description" @bind-Value="newMovie.Description" placeholder="Описание" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label for="Genre">Жанр:</label>
-                <InputText id="Genre" @bind-Value="newMovie.Genre" placeholder="Жанр" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label for="ReleaseDate">Дата выхода:</label>
-                <InputDate id="ReleaseDate" @bind-Value="newMovie.ReleaseDate" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label for="Rating">Рейтинг:</label>
-                <InputNumber id="Rating" @bind-Value="newMovie.Rating" class="form-control" />
-            </div>
-            <div class="form-group">
-                <label for="ImageUrl">URL изображения:</label>
-                <InputText id="ImageUrl" @bind-Value="newMovie.ImageUrl" placeholder="URL изображения" class="form-control" />
-            </div>
-            <button type="submit" class="btn btn-primary">@((isEditing) ? "Сохранить" : "Добавить фильм")</button>
-            @if (isEditing)
-            {
-                <button type="button" class="btn btn-secondary" @onclick="ResetForm">Отмена</button>
-            }
-		</EditForm>
-        <button type="button" class="btn btn-perehod" @onclick="ToggleForm">User</button>
+        <div style="white-space: nowrap;">
+            <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleFormU">User</button>
+			<button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleFormM">Movie</button>
+		</div>
     </div>
-        
-
 }
 
 
 
 @code {
     private bool isVariable = true;
+    private bool isVariable1 = true;
     private bool isEditing = false;
     private User newUser = new User();
     private List<User> users = new List<User>();
-    private void ToggleForm() => isVariable = !isVariable;
     private Movie newMovie = new Movie();
     private List<Movie> movies = new List<Movie>();
+    List<Message> messages1 = new List<Message>();
+    private void ToggleFormU() { isVariable = true; isVariable1 = true; }
+    private void ToggleFormM() { isVariable = false; isVariable1 = true; }
+    private void ToggleForm1()  {isVariable1 = !isVariable1;}
+
+
 
     // Заглушка для проверки прав администратора.  Замените это своей реальной логикой!
     private bool IsAdmin { get { return true; } } //  !!!! ЗАМЕНИТЬ ЭТО СВОЕЙ ЛОГИКОЙ АВТОРИЗАЦИИ !!!!
@@ -282,6 +347,45 @@ else
             return;
         }
         await LoadMovies();
+        await LoadMessage();
+    }
+
+    private async Task LoadMessage()
+    {
+
+            var response = await Http.GetAsync("api/Chat");
+            if (response.IsSuccessStatusCode)
+            {
+                messages1 = await response.Content.ReadFromJsonAsync<List<Message>>();
+
+            }
+            else
+            {
+                ShowAlert($"Ошибка загрузки сообщений: {response.StatusCode}");
+            }
+
+    }
+
+    private async Task DeleteMessage(int id)
+    {
+        try
+        {
+            
+            var response = await Http.DeleteAsync($"api/Chat/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadMessage();
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                ShowAlert($"Ошибка удаления пользователя: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Ошибка: {ex.Message}");
+        }
     }
 
     private async Task LoadUsers()

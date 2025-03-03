@@ -73,6 +73,7 @@
 @code {
     private User loginUser = new User();
     public static User idU;
+    public int idS;
 
     private async Task HandleLogin()
     {
@@ -107,7 +108,7 @@
                     string userRole = user.Role;
 
                     ShowAlert("Вы успешно авторизовались!");
-
+                    idS = idU.Id;
                     switch (userRole)
                     {
                         case "Администратор":
