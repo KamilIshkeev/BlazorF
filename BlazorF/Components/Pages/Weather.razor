@@ -162,7 +162,19 @@
         }
     </select>
     <button @onclick="UpInterface">Обновить</button>
+    <p style="text-align: left;">
+
+        <NavLink class="btn btn-primary" href="/profile">Назад в профиль</NavLink>
+    </p>
 </div>
+
+@if (usr1.Role == "Администратор")
+{
+    <p style="text-align: left;">
+
+        <NavLink class="btn btn-primary" href="/admin">Админка</NavLink>
+    </p>
+}
 
 @* <ul>
 
@@ -193,6 +205,7 @@
     private List<User> usr = new List<User>();
     private List<string> items = new List<string>();
     private System.Timers.Timer timer;
+    public User? usr1 = Counter.idU;
 
 
 
@@ -294,7 +307,7 @@
 
                 var newMessage = new Message
                     {
-                        UserId = int.Parse(iUser),
+                        UserId = idUs,
                         Content = message,
                         MovieId = ID,
                         Url = photoUrl
@@ -303,7 +316,7 @@
                 UpdateMessages(newMessage);
 
                 InvokeAsync(StateHasChanged);
-                StateHasChanged();
+                
 
             });
             await InvokeAsync(StateHasChanged);
@@ -321,7 +334,7 @@
                 UpdateMessages(newMessage);
 
                 InvokeAsync(StateHasChanged);
-                StateHasChanged();
+                
 
             });
             await InvokeAsync(StateHasChanged);
@@ -351,7 +364,7 @@
         InvokeAsync(() =>
         {
             LoadMessage();
-            StateHasChanged();
+            InvokeAsync(StateHasChanged);
         });
     }
 

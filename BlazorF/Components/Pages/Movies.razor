@@ -1,118 +1,4 @@
-﻿@* @page "/movies"
-@using BlazorF.ApiFilm.Models
-@inject HttpClient Http
-@inject NavigationManager NavigationManager
-
-<style>
-    body {
-        background-color: #f8f9fa; /* Светлый фон */
-    }
-    h3 {
-        color: #4169E1; /* Цвет заголовка */
-    }
-    .btn-primary {
-        background-color: #1E90FF;
-        border-color: #1E90FF;
-    }
-
-    .btn-primary:hover {
-            background-color: #87CEFA;
-            border-color: #87CEFA;
-    }
-
-    .table {
-        width: 100%;
-        margin-top: 20px;
-        border-collapse: collapse;
-    }
-
-    .table th, .table td {
-        padding: 12px;
-        border: 1px solid #dee2e6;
-        text-align: center;
-    }
-
-    .table th {
-        background-color: #1E90FF;
-        color: white;
-    }
-
-</style>
-
-<h3>Каталог фильмов</h3>
-
-<input @bind="searchString" placeholder="Введите название фильма для поиска" />
-
-@if (movies == null)
-{
-    <p><em>Загрузка...</em></p>
-}
-else
-{
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Url</th>
-                <th>Название</th>
-                <th>Жанр</th>
-                <th>Рейтинг</th>
-                <th>Информация</th>
-            </tr>
-        </thead>
-        <tbody>
-            @if (filteredMovies.Any())
-            {
-            @foreach (var movie in filteredMovies)
-            {
-                <tr>
-                    <td><img src="@movie.ImageUrl" alt="@movie.Title" /></td>
-                    <td>@movie.Title</td>
-                    <td>@movie.Genre</td>
-                    <td>@movie.Rating</td>
-                    <td>
-                        <NavLink href="@($"/movies/{movie.Id}")" class="btn btn-primary">Подробнее</NavLink>
-                    </td>
-                </tr>
-            }
-            }
-            else
-            {
-                <tr>
-                    <td colspan="3">Нет результатов.</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-
-@code {
-    private List<Movie>? movies;
-    private string searchString = string.Empty;
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        movies = await Http.GetFromJsonAsync<List<Movie>>("api/movies"); // Замените на правильный URL вашего API
-    }
-
-    private IEnumerable<Movie> filteredMovies => movies
-       .Where(m => string.IsNullOrEmpty(searchString) || m.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase));
-
-
-
-} *@
-
-
-
-
-
-
-
-
-
-
-
+﻿
 
 
 @page "/movies"
@@ -127,7 +13,17 @@ else
 </style>
 
 <h3>Каталог фильмов</h3>
+<p style="text-align: left;">
 
+    <NavLink class="btn btn-primary" href="/profile">Назад в профиль</NavLink>
+</p>
+@if (usr1.Role == "Администратор")
+{
+
+
+    <NavLink class="btn btn-primary" href="/admin">Админка</NavLink>
+
+}
 <input @bind="searchString" placeholder="Введите название фильма для поиска" />
 <button @onclick="SearchMovies1" class="btn btn-primary">Поиск</button>
 
@@ -177,6 +73,7 @@ else
             }
         </tbody>
     </table>
+
 }
 
 @code {
@@ -185,6 +82,7 @@ else
     private string searchString = string.Empty;
     private bool isLoading = true;
     private string searchMessage = string.Empty; 
+    public User? usr1 = Counter.idU;
 
     protected override async Task OnInitializedAsync()
     {

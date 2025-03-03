@@ -33,9 +33,9 @@ else
         </div>
         <div class="card-body">
             <p><strong>ID:</strong> @user.Id</p>
-            <p><strong>Email:</strong> @user.Name</p>
+            <p><strong>Name:</strong> @user.Name</p>
             <p><strong>Email:</strong> @user.Email</p>
-            <p><strong>Email:</strong> @user.Password</p>
+            
             <!-- Добавьте другие поля по необходимости "/lsmessage" -->
         </div>
 
@@ -43,13 +43,20 @@ else
             <NavLink class="btn btn-primary" href="/movies">Перейти в каталог</NavLink>
             <NavLink class="btn btn-primary" href="/weather">Перейти в общий чат</NavLink>
             <NavLink class="btn btn-primary" href="/lsmessage">Перейти в ЛС</NavLink>
+            @if (usr1.Role == "Администратор")
+            {
+            
+
+                <NavLink class="btn btn-primary" href="/admin">Админка</NavLink>
+            
+            }
         </p>
     </div>
 }
 
 @code {
     private User user;
-    
+    public User? usr1 = Counter.idU;
 
     protected override async Task OnInitializedAsync()
     {

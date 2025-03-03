@@ -1,16 +1,134 @@
 ﻿@page "/lsmessage"
 @using System.Net.Http.Headers;
 @inject HttpClient Http
-
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
 @using Microsoft.AspNetCore.SignalR.Client
+@rendermode InteractiveServer
 
 
+
+
+
+<style>
+    /* Общий стиль для страницы */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 20px;
+    }
+
+    /* Заголовок */
+    h3 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    /* Список сообщений */
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+        max-height: 400px; /* Ограничение высоты списка */
+        overflow-y: auto; /* Добавление прокрутки */
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fff;
+        padding: 10px;
+    }
+
+    /* Элементы списка */
+    li {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+        li:last-child {
+            border-bottom: none; /* Убираем границу для последнего элемента */
+        }
+
+    /* Имя пользователя */
+    strong {
+        color: #007bff;
+        font-weight: bold;
+    }
+
+    /* Текст сообщения */
+    span {
+        margin-right: 10px;
+        font-size: 14px;
+        color: #555;
+    }
+
+    /* Изображения */
+    img {
+        max-width: 200px;
+        border-radius: 8px;
+        margin-top: 5px;
+        display: block;
+    }
+
+    /* Название фильма */
+    small {
+        color: #888;
+        font-size: 12px;
+    }
+
+    /* Форма отправки сообщений */
+    div.form-container {
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    input[type="text"],
+    input[type="url"] {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    button {
+        padding: 10px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+    /* Выпадающий список фильмов */
+    select {
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+</style>
+
+
+
+@if (usr1.Role == "Администратор")
+{
+    <p style="text-align: left;">
+
+        <NavLink class="btn btn-primary" href="/admin">Админка</NavLink>
+    </p>
+}
 @if (isVariable)
 {
     <div class="container">
-        <h3>Управление пользователями</h3>
+
         <h4>Список пользователей</h4>
         <table class="table">
             <thead>
@@ -29,40 +147,47 @@
                         <td>@user.Email</td>
                         <td>@user.Description</td>
                         <td>
+                            <button onclick="@(async() => await ConectUser2(user.Id))" class="btn btn-danger">Написать</button>
 
-                            <button @onclick="() => ConectUser2(user.Id)" class="btn btn-danger">Написать</button>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
-
+        <p>
+            
+            <NavLink class="btn btn-primary" href="/profile">Назад в профиль</NavLink>
+        </p>
     </div>
 }
 else
 { 
-    <ul>
-        @foreach (var msg in messages1)
+   
+
+
+    @foreach (var msg in messages1)
+    {
+        @if ((msg.UserId1 == idUs && msg.UserId2 == Uid2) || (msg.UserId1 == Uid2 && msg.UserId2 == idUs))
         {
-            @foreach (var Us in usr)
-            {
-                @if (msg.UserId1 == idUs && msg.UserId2 == Uid2)
+            <div>
+                <!-- Отображаем имя отправителя -->
+                <strong>@GetUserName(msg.UserId1):</strong>
+
+                <!-- Отображаем текст сообщения -->
+                @if (!string.IsNullOrEmpty(msg.Content))
                 {
-                    <li>
-                        <strong>@Us.Name:</strong>
-                        @if (!string.IsNullOrEmpty(msg.Content))
-                        {
-                            <span>@msg.Content</span>
-                        }
-                        @if (!string.IsNullOrEmpty(msg.Url))
-                        {
-                            <img src="@msg.Url" alt="Uploaded photo" />
-                        }
-                    </li>
+                    <span>@msg.Content</span>
                 }
-            }
+
+                <!-- Отображаем URL, если он есть -->
+                @if (!string.IsNullOrEmpty(msg.Url))
+                {
+                    <img src="@msg.Url"/>
+                }
+            </div>
         }
-    </ul>
+    }
+
 
     <div class="form-container">
         <input @bind-value="message" placeholder="Type a message..." />
@@ -70,6 +195,7 @@ else
         <button @onclick="SendMessage">Send</button>
         <button @onclick="UpInterface">Обновить</button>
     </div>
+    <button @onclick="ToggleFormU">Назад в список</button>
 }
 
 
@@ -99,9 +225,15 @@ else
     private List<string> items = new List<string>();
     private System.Timers.Timer timer;
     public int Uid2;
+    public User? usr1 = Counter.idU;
 
 
 
+    private string GetUserName(int userId)
+    {
+        var user = usr.FirstOrDefault(u => u.Id == userId);
+        return user?.Name ?? "Неизвестный пользователь";
+    }
 
 
 
@@ -161,10 +293,20 @@ else
 
     private async Task ConectUser2(int Id2)
     {
+        
+        JS.InvokeVoidAsync("alert", "Переход");
+
+        try
+        {
         isVariable = false;
         Uid2 = Id2;
         await RegUser();
         await LoadMessage();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка: {ex.Message}");
+        }
     }
 
     async Task RegUser()
@@ -199,7 +341,7 @@ else
 
                 var newMessage = new LsMessage
                     {
-                        UserId1 = int.Parse(iUser),
+                        UserId1 = idUs,
                         UserId2 = Uid2,
                         Content = message,
                         Url = photoUrl
@@ -208,7 +350,7 @@ else
                 UpdateMessages(newMessage);
 
                 InvokeAsync(StateHasChanged);
-                StateHasChanged();
+                // StateHasChanged();
 
             });
             await InvokeAsync(StateHasChanged);
@@ -226,7 +368,7 @@ else
                 UpdateMessages(newMessage);
 
                 InvokeAsync(StateHasChanged);
-                StateHasChanged();
+                // StateHasChanged();
 
             });
             await InvokeAsync(StateHasChanged);
@@ -411,3 +553,33 @@ else
 
     
 }
+
+@* 
+                        напиши как сделать так чтобы
+<ul>
+    @foreach (var msg in messages1)
+    {
+        @foreach (var Us in usr)
+        {
+            @if (msg.UserId1 == idUs && msg.UserId2 == Uid2)
+            {
+                <li>
+                    <strong>@Us.Name:</strong>
+                    @if (!string.IsNullOrEmpty(msg.Content))
+                    {
+                        <span>@msg.Content</span>
+                    }
+                    @if (!string.IsNullOrEmpty(msg.Url))
+                    {
+                        <img src="@msg.Url" alt="Uploaded photo" />
+                    }
+                </li>
+            }
+        }
+    }
+</ul>
+выводил сообщения только 1 и 2 пользователей
+
+
+
+ *@
