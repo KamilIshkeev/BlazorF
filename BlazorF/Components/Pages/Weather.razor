@@ -9,7 +9,7 @@
 @using BlazorF.ApiFilm
 
 
-
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 <style>
     /* Общий стиль для страницы */
     body {
@@ -142,6 +142,12 @@
                                 <img src="@msg.Url" alt="Uploaded photo" />
                             }
                             <small>(Фильм: @mo.Title)</small>
+                            @if (Us.Id == idUs)
+                            {
+                            <button @onclick="() => EditMes(msg)" class="btn btn-light">
+                                <i class="fa-solid fa-pen"></i>
+                                </button>
+                            }
                         </li>
                     }
                 }
@@ -149,11 +155,18 @@
         }
     }
 </ul>
-
 <div class="form-container">
-    <input @bind-value="message" placeholder="Type a message..." />
-    <input placeholder="Enter image URL" @bind-value="photoUrl" />
-    <button @onclick="SendMessage">Send</button>
+<EditForm Model="mesa" OnValidSubmit="isEditing ? HandleUpdateMes : HandleCreateMes" FormName="movieForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        
+        <InputTextArea id="Content" @bind-Value="mesa.Content" placeholder="Содержание" class="form-control" />
+    </div>
+    <div class="form-group">
+        
+        <InputText id="Url" @bind-Value="mesa.Url" placeholder="URL изображения" class="form-control" />
+    </div>
     <select @bind="selectedMovieId">
         <option value="">-- Выберите фильм --</option>
         @foreach (var movie in movies)
@@ -161,7 +174,13 @@
             <option value="@movie.Id">@movie.Title</option>
         }
     </select>
-    <button @onclick="UpInterface">Обновить</button>
+        <button type="submit" class="btn btn-primary">@((isEditing) ? "Сохранить" : "Отправить")</button>
+    @if (isEditing)
+    {
+        <button type="button" class="btn btn-secondary" @onclick="ResetForm">Отмена</button>
+    }
+</EditForm>
+
     <p style="text-align: left;">
 
         <NavLink class="btn btn-primary" href="/profile">Назад в профиль</NavLink>
@@ -176,13 +195,6 @@
     </p>
 }
 
-@* <ul>
-
-    @foreach (var msg in messages)
-    {
-        <li>@msg</li>
-    }
-</ul> *@
 
 @code {
     string message = "";
@@ -206,7 +218,8 @@
     private List<string> items = new List<string>();
     private System.Timers.Timer timer;
     public User? usr1 = Counter.idU;
-
+    private bool isEditing = false;
+    private Message mesa = new Message();
 
 
     private async Task LoadMovies()
@@ -358,6 +371,85 @@
 
 
     }
+
+    private async Task HandleUpdateMes()
+    {
+        try
+        {
+            var response = await Http.PutAsJsonAsync($"api/Chat/{mesa.Id}", mesa);
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadMessage();
+                ResetForm();
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                ShowAlert($"Ошибка обновления пользователя: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Ошибка: {ex.Message}");
+        }
+    }
+
+
+    private async Task HandleCreateMes()
+    {
+        try
+        {
+            if (selectedMovieId != null && selectedMovieId != "0")
+            {
+                idmov = int.Parse(selectedMovieId);
+            }
+            else
+            {
+                idmov = 1;
+            }
+
+            // Call FilmConnect asynchronously and await its completion
+            await Film();
+            var newMessage = new Message
+                {
+                    UserId = idUs,
+                    Content = mesa.Content,
+                    MovieId = ID,
+                    Url = mesa.Url
+                };
+            var response = await Http.PostAsJsonAsync("api/Chat", newMessage);
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadMessage();
+                ResetForm();
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                ShowAlert($"Ошибка добавления пользователя: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Ошибка: {ex.Message}");
+        }
+    }
+
+    private void ResetForm()
+    {
+        
+        mesa = new Message();
+        isEditing = false;
+        selectedMovieId = "";
+    }
+
+    private void EditMes(Message mesag)
+    {
+        mesa = mesag;
+        isEditing = true;
+        selectedMovieId = mesa.MovieId.ToString();
+    }
+
 
     private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
     {

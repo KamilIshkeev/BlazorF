@@ -9,110 +9,110 @@
 
 
 
-
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 <style>
     /* Общий стиль для страницы */
     body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f4f9;
-        margin: 0;
-        padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 20px;
     }
 
     /* Заголовок */
     h3 {
-        color: #333;
-        text-align: center;
-        margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
     }
 
     /* Список сообщений */
     ul {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-        max-height: 400px; /* Ограничение высоты списка */
-        overflow-y: auto; /* Добавление прокрутки */
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        background-color: #fff;
-        padding: 10px;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    max-height: 400px; /* Ограничение высоты списка */
+    overflow-y: auto; /* Добавление прокрутки */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    padding: 10px;
     }
 
     /* Элементы списка */
     li {
-        margin-bottom: 15px;
-        padding: 10px;
-        border-bottom: 1px solid #eee;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
     }
 
-        li:last-child {
-            border-bottom: none; /* Убираем границу для последнего элемента */
-        }
+    li:last-child {
+    border-bottom: none; /* Убираем границу для последнего элемента */
+    }
 
     /* Имя пользователя */
     strong {
-        color: #007bff;
-        font-weight: bold;
+    color: #007bff;
+    font-weight: bold;
     }
 
     /* Текст сообщения */
     span {
-        margin-right: 10px;
-        font-size: 14px;
-        color: #555;
+    margin-right: 10px;
+    font-size: 14px;
+    color: #555;
     }
 
     /* Изображения */
     img {
-        max-width: 200px;
-        border-radius: 8px;
-        margin-top: 5px;
-        display: block;
+    max-width: 200px;
+    border-radius: 8px;
+    margin-top: 5px;
+    display: block;
     }
 
     /* Название фильма */
     small {
-        color: #888;
-        font-size: 12px;
+    color: #888;
+    font-size: 12px;
     }
 
     /* Форма отправки сообщений */
     div.form-container {
-        margin-top: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     }
 
     input[type="text"],
     input[type="url"] {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 14px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
     }
 
     button {
-        padding: 10px;
-        background-color: #007bff;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
     }
 
-        button:hover {
-            background-color: #0056b3;
-        }
+    button:hover {
+    background-color: #0056b3;
+    }
 
     /* Выпадающий список фильмов */
     select {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        font-size: 14px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
     }
 </style>
 
@@ -155,14 +155,15 @@
             </tbody>
         </table>
         <p>
-            
+
             <NavLink class="btn btn-primary" href="/profile">Назад в профиль</NavLink>
         </p>
     </div>
+
 }
 else
 { 
-   
+
 
 
     @foreach (var msg in messages1)
@@ -172,30 +173,90 @@ else
             <div>
                 <!-- Отображаем имя отправителя -->
                 <strong>@GetUserName(msg.UserId1):</strong>
-
+                 <p>
                 <!-- Отображаем текст сообщения -->
                 @if (!string.IsNullOrEmpty(msg.Content))
                 {
-                    <span>@msg.Content</span>
+                   <span>@msg.Content</span>
                 }
 
                 <!-- Отображаем URL, если он есть -->
                 @if (!string.IsNullOrEmpty(msg.Url))
                 {
-                    <img src="@msg.Url"/>
+                    <img src="@msg.Url" />
+                    
                 }
+                @if (msg.UserId1 == idUs)
+                {
+                  <button @onclick="() => EditMes(msg)" class="btn btn-light">
+                   <i class="fa-solid fa-pen"></i>
+                  </button>
+                }
+                 </p>
             </div>
         }
     }
 
-
+    @* <ul>
+        @foreach (var msg in messages1)
+        {
+            @foreach (var Us in usr)
+            {
+                @if (msg.UserId == Us.Id)
+                {
+                    
+                        
+                            <li>
+                                <strong>@Us.Name:</strong>
+                                @if (!string.IsNullOrEmpty(msg.Content))
+                                {
+                                    <span>@msg.Content</span>
+                                }
+                                @if (!string.IsNullOrEmpty(msg.Url))
+                                {
+                                    <img src="@msg.Url" alt="Uploaded photo" />
+                                }
+                                
+                                @if (Us.Id == idUs)
+                                {
+                                    <button @onclick="() => EditMes(msg)" class="btn btn-light">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                }
+                            </li>
+                        
+                    
+                }
+            }
+        }
+    </ul> *@
     <div class="form-container">
-        <input @bind-value="message" placeholder="Type a message..." />
-        <input placeholder="Enter image URL" @bind-value="photoUrl" />
-        <button @onclick="SendMessage">Send</button>
-        <button @onclick="UpInterface">Обновить</button>
+        <EditForm Model="mesa" OnValidSubmit="isEditing ? HandleUpdateMes : HandleCreateMes" FormName="movieForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="form-group">
+
+                <InputTextArea id="Content" @bind-Value="mesa.Content" placeholder="Содержание" class="form-control" />
+            </div>
+            <div class="form-group">
+
+                <InputText id="Url" @bind-Value="mesa.Url" placeholder="URL изображения" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary">@((isEditing) ? "Сохранить" : "Отправить")</button>
+            @if (isEditing)
+            {
+                <button type="button" class="btn btn-secondary" @onclick="ResetForm">Отмена</button>
+            }
+        </EditForm>
+
+        <p style="text-align: left;">
+
+            <NavLink class="btn btn-primary" href="/profile">Назад в профиль</NavLink>
+        </p>
     </div>
-    <button @onclick="ToggleFormU">Назад в список</button>
+
+
+
 }
 
 
@@ -226,7 +287,8 @@ else
     private System.Timers.Timer timer;
     public int Uid2;
     public User? usr1 = Counter.idU;
-
+    private bool isEditing = false;
+    private LsMessage mesa = new LsMessage();
 
 
     private string GetUserName(int userId)
@@ -262,6 +324,8 @@ else
 
 
     }
+
+
 
 
     private async Task LoadUser()
@@ -300,7 +364,7 @@ else
         {
         isVariable = false;
         Uid2 = Id2;
-        await RegUser();
+        // await RegUser();
         await LoadMessage();
         }
         catch (Exception ex)
@@ -309,19 +373,19 @@ else
         }
     }
 
-    async Task RegUser()
-    {
-        await hubConnection.SendAsync("RegisterUser", iUser);
-        user1 = await Http.GetFromJsonAsync<User>($"api/User/{Uid2}");
-        if (user1 == null)
-        {
-            ShowAlert("Received an empty movie object.");
-            return;
-        }
-        NameU = user1.Name;
-        await hubConnection.SendAsync("RegisterUser", NameU);
-        // message = string.Empty;
-    }
+    // async Task RegUser()
+    // {
+    //     // await hubConnection.SendAsync("RegisterUser", iUser);
+    //     user1 = await Http.GetFromJsonAsync<User>($"api/User/{Uid2}");
+    //     if (user1 == null)
+    //     {
+    //         ShowAlert("Received an empty movie object.");
+    //         return;
+    //     }
+    //     NameU = user1.Name;
+    //     // await hubConnection.SendAsync("RegisterUser", NameU);
+    //     // message = string.Empty;
+    // }
 
 
 
@@ -392,6 +456,85 @@ else
 
 
     }
+
+    private async Task HandleUpdateMes()
+    {
+        try
+        {
+            var newMessage = new LsMessage
+                {
+                    UserId1 = mesa.Id,
+                    Content = mesa.Content,
+                    UserId2 = Uid2,
+                    Url = mesa.Url
+                };
+            var response = await Http.PutAsJsonAsync($"api/Chat/LsMes/{mesa.Id}", mesa);
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadMessage();
+                ResetForm();
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                ShowAlert($"Ошибка обновления сообщения: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Ошибка: {ex.Message}");
+        }
+    }
+
+
+    private async Task HandleCreateMes()
+    {
+        try
+        {
+            
+
+            // Call FilmConnect asynchronously and await its completion
+            
+            var newMessage = new LsMessage
+                {
+                    UserId1 = idUs,
+                    Content = mesa.Content,
+                    UserId2 = Uid2,
+                    Url = mesa.Url
+                };
+            var response = await Http.PostAsJsonAsync("api/Chat/lsMes", newMessage);
+            if (response.IsSuccessStatusCode)
+            {
+                await LoadMessage();
+                ResetForm();
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                ShowAlert($"Ошибка добавления сообщения: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Ошибка: {ex.Message}");
+        }
+    }
+
+    private void ResetForm()
+    {
+
+        mesa = new LsMessage();
+        isEditing = false;
+        selectedMovieId = "";
+    }
+
+    private void EditMes(LsMessage mesag)
+    {
+        mesa = mesag;
+        isEditing = true;
+        
+    }
+
 
     private void OnTimedEvent(Object source, System.Timers.ElapsedEventArgs e)
     {

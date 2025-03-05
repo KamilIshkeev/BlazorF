@@ -122,14 +122,14 @@
     }
 
     img {
-        max-width: 100px;
-        border-radius: 8px;
-        margin-top: 5px;
-        display: block;
+    max-width: 100px;
+    border-radius: 8px;
+    margin-top: 5px;
+    display: block;
     }
 
     /* .button-container {
-        display: flex;
+    display: flex;
     } */
 
 </style>
@@ -203,7 +203,7 @@
             <div style="white-space: nowrap;">
                 <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleFormM">Movie</button>
                 <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleForm1">Message</button>
-			</div>
+            </div>
         </div>
     }
     else
@@ -276,7 +276,7 @@
             <div style="white-space: nowrap;">
                 <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleFormU">User</button>
                 <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleForm1">Message</button>
-			</div>
+            </div>
         </div>
 
 
@@ -310,6 +310,7 @@ else
                         <td>@msg.CreatedAt</td>
                         <td><img src="@msg.Url"/></td>
                         <td>
+                            <button @onclick="() => EditMes(msg)" class="btn btn-warning">Редактировать</button>
                             <button @onclick="() => DeleteMessage(msg.Id)" class="btn btn-danger">Удалить</button>
                         </td>
                     </tr>
@@ -318,9 +319,35 @@ else
         </table>
         <div style="white-space: nowrap;">
             <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleFormU">User</button>
-			<button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleFormM">Movie</button>
-		</div>
+            <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleFormM">Movie</button>
+        </div>
     </div>
+    <h4>Редактировать сообщение</h4>
+    <EditForm Model="mesa" OnValidSubmit=HandleUpdateMes FormName="movieForm">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+            <label for="Content">Содержание:</label>
+            <InputTextArea id="Content" @bind-Value="mesa.Content" placeholder="Содержание" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="Url">URL изображения:</label>
+            <InputText id="Url" @bind-Value="mesa.Url" placeholder="URL изображения" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        @if (isEditing)
+        {
+            <button type="button" class="btn btn-secondary" @onclick="ResetForm">Отмена</button>
+        }
+    </EditForm>
+    <div style="white-space: nowrap;">
+        <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleFormU">User</button>
+        <button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleForm1">Message</button>
+    </div>
+
+
+
+
 }
 
 
@@ -334,6 +361,7 @@ else
     private Movie newMovie = new Movie();
     private List<Movie> movies = new List<Movie>();
     List<Message> messages1 = new List<Message>();
+    private Message mesa = new Message();
     private void ToggleFormU() { isVariable = true; isVariable1 = true; }
     private void ToggleFormM() { isVariable = false; isVariable1 = true; }
     private void ToggleForm1()  {isVariable1 = !isVariable1;}
@@ -358,24 +386,46 @@ else
     private async Task LoadMessage()
     {
 
-            var response = await Http.GetAsync("api/Chat");
+        var response = await Http.GetAsync("api/Chat");
+        if (response.IsSuccessStatusCode)
+        {
+            messages1 = await response.Content.ReadFromJsonAsync<List<Message>>();
+
+        }
+        else
+        {
+            ShowAlert($"Ошибка загрузки сообщений: {response.StatusCode}");
+        }
+
+    }
+
+    private async Task HandleUpdateMes()
+    {
+        try
+        {
+            var response = await Http.PutAsJsonAsync($"api/Chat/{mesa.Id}", mesa);
             if (response.IsSuccessStatusCode)
             {
-                messages1 = await response.Content.ReadFromJsonAsync<List<Message>>();
-
+                await LoadMessage();
+                ResetForm();
             }
             else
             {
-                ShowAlert($"Ошибка загрузки сообщений: {response.StatusCode}");
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                ShowAlert($"Ошибка обновления пользователя: {errorMessage}");
             }
-
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Ошибка: {ex.Message}");
+        }
     }
 
     private async Task DeleteMessage(int id)
     {
         try
         {
-            
+
             var response = await Http.DeleteAsync($"api/Chat/{id}");
             if (response.IsSuccessStatusCode)
             {
@@ -459,6 +509,13 @@ else
         isEditing = true;
     }
 
+    private void EditMes(Message mesag)
+    {
+        mesa = mesag;
+        isEditing = true;
+    }
+
+
     private async Task DeleteUser(int id)
     {
         try
@@ -495,7 +552,7 @@ else
     {
         newUser = new User();
         newMovie = new Movie();
-        
+        mesa = new Message();
         isEditing = false;
     }
 
