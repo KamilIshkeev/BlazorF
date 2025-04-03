@@ -3,7 +3,10 @@
 @inject HttpClient Http
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
+@using BlazorF.StateManager
 @rendermode InteractiveServer
+@using Fluxor;
+@inject IDispatcher Dispatcher
 
 <PageTitle>Counter</PageTitle>
 
@@ -109,6 +112,7 @@
 
                     ShowAlert("Вы успешно авторизовались!");
                     idS = idU.Id;
+                    SetUsers();
                     switch (userRole)
                     {
                         case "Администратор":
@@ -141,5 +145,13 @@
     private void ShowAlert(string message)
     {
         JS.InvokeVoidAsync("alert", message);
+    }
+
+    
+
+
+    private void SetUsers()
+    {
+        Dispatcher.Dispatch(new SetUsersIdAction(idU));
     }
 }

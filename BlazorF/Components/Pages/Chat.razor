@@ -3,10 +3,13 @@
 @inject HttpClient Http
 @inject IJSRuntime JS
 @inject NavigationManager Navigation
+@using BlazorF.StateManager
 @using Microsoft.AspNetCore.SignalR.Client
+@using BlazorF.StateManager
 @rendermode InteractiveServer
-
-
+@using Fluxor;
+@inject IDispatcher Dispatcher
+@inject IState<UserState1> UserState1
 
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
@@ -173,26 +176,26 @@ else
             <div>
                 <!-- Отображаем имя отправителя -->
                 <strong>@GetUserName(msg.UserId1):</strong>
-                 <p>
-                <!-- Отображаем текст сообщения -->
-                @if (!string.IsNullOrEmpty(msg.Content))
-                {
-                   <span>@msg.Content</span>
-                }
+                <p>
+                    <!-- Отображаем текст сообщения -->
+                    @if (!string.IsNullOrEmpty(msg.Content))
+                    {
+                        <span>@msg.Content</span>
+                    }
 
-                <!-- Отображаем URL, если он есть -->
-                @if (!string.IsNullOrEmpty(msg.Url))
-                {
-                    <img src="@msg.Url" />
-                    
-                }
-                @if (msg.UserId1 == idUs)
-                {
-                  <button @onclick="() => EditMes(msg)" class="btn btn-light">
-                   <i class="fa-solid fa-pen"></i>
-                  </button>
-                }
-                 </p>
+                    <!-- Отображаем URL, если он есть -->
+                    @if (!string.IsNullOrEmpty(msg.Url))
+                    {
+                        <img src="@msg.Url" />
+
+                    }
+                    @if (msg.UserId1 == idUs)
+                    {
+                        <button @onclick="() => EditMes(msg)" class="btn btn-light">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                    }
+                </p>
             </div>
         }
     }
@@ -204,8 +207,8 @@ else
             {
                 @if (msg.UserId == Us.Id)
                 {
-                    
-                        
+
+
                             <li>
                                 <strong>@Us.Name:</strong>
                                 @if (!string.IsNullOrEmpty(msg.Content))
@@ -216,7 +219,7 @@ else
                                 {
                                     <img src="@msg.Url" alt="Uploaded photo" />
                                 }
-                                
+
                                 @if (Us.Id == idUs)
                                 {
                                     <button @onclick="() => EditMes(msg)" class="btn btn-light">
@@ -224,8 +227,8 @@ else
                                     </button>
                                 }
                             </li>
-                        
-                    
+
+
                 }
             }
         }
@@ -267,7 +270,7 @@ else
     private void ToggleFormU() => isVariable = !isVariable; 
     string message = "";
     string user = "";
-    string iUser = @Counter.idU.Name;
+    string iUser;
     string movie = "";
     HubConnection hubConnection;
     List<string> messages = new List<string>();
@@ -278,7 +281,7 @@ else
     public int ID;
     public string MovTitle;
     public int idmov;
-    public int idUs = @Counter.idU.Id;
+    public int idUs;
     private string photoUrl = "";
     private int selectedMessageId;
     public string NameU;
@@ -286,7 +289,7 @@ else
     private List<string> items = new List<string>();
     private System.Timers.Timer timer;
     public int Uid2;
-    public User? usr1 = Counter.idU;
+    public User? usr1;
     private bool isEditing = false;
     private LsMessage mesa = new LsMessage();
 
@@ -357,15 +360,15 @@ else
 
     private async Task ConectUser2(int Id2)
     {
-        
+
         JS.InvokeVoidAsync("alert", "Переход");
 
         try
         {
-        isVariable = false;
-        Uid2 = Id2;
-        // await RegUser();
-        await LoadMessage();
+            isVariable = false;
+            Uid2 = Id2;
+            // await RegUser();
+            await LoadMessage();
         }
         catch (Exception ex)
         {
@@ -391,7 +394,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-
+        idUs = UserState1.Value.User.Id;
+        iUser = UserState1.Value.User.Name;
+        usr1 = UserState1.Value.User;
         await LoadUser();
         // await LoadMessage();
 

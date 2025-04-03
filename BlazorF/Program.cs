@@ -1,5 +1,6 @@
 using BlazorF.ApiFilm;
 using BlazorF.Components;
+using Fluxor;
 using Microsoft.AspNetCore.Routing.Constraints;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +10,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7023/") });
+builder.Services.AddFluxor(option => option.ScanAssemblies(typeof(Program).Assembly));
 
 
 var app = builder.Build();

@@ -7,6 +7,10 @@
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 @using BlazorF.ApiFilm
+@using BlazorF.StateManager
+@using Fluxor;
+@inject IDispatcher Dispatcher
+@inject IState<UserState1> UserState1
 
 
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
@@ -144,8 +148,8 @@
                             <small>(Фильм: @mo.Title)</small>
                             @if (Us.Id == idUs)
                             {
-                            <button @onclick="() => EditMes(msg)" class="btn btn-light">
-                                <i class="fa-solid fa-pen"></i>
+                                <button @onclick="() => EditMes(msg)" class="btn btn-light">
+                                    <i class="fa-solid fa-pen"></i>
                                 </button>
                             }
                         </li>
@@ -156,30 +160,30 @@
     }
 </ul>
 <div class="form-container">
-<EditForm Model="mesa" OnValidSubmit="isEditing ? HandleUpdateMes : HandleCreateMes" FormName="movieForm">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <div class="form-group">
-        
-        <InputTextArea id="Content" @bind-Value="mesa.Content" placeholder="Содержание" class="form-control" />
-    </div>
-    <div class="form-group">
-        
-        <InputText id="Url" @bind-Value="mesa.Url" placeholder="URL изображения" class="form-control" />
-    </div>
-    <select @bind="selectedMovieId">
-        <option value="">-- Выберите фильм --</option>
-        @foreach (var movie in movies)
-        {
-            <option value="@movie.Id">@movie.Title</option>
-        }
-    </select>
+    <EditForm Model="mesa" OnValidSubmit="isEditing ? HandleUpdateMes : HandleCreateMes" FormName="movieForm">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="form-group">
+
+            <InputTextArea id="Content" @bind-Value="mesa.Content" placeholder="Содержание" class="form-control" />
+        </div>
+        <div class="form-group">
+
+            <InputText id="Url" @bind-Value="mesa.Url" placeholder="URL изображения" class="form-control" />
+        </div>
+        <select @bind="selectedMovieId">
+            <option value="">-- Выберите фильм --</option>
+            @foreach (var movie in movies)
+            {
+                <option value="@movie.Id">@movie.Title</option>
+            }
+        </select>
         <button type="submit" class="btn btn-primary">@((isEditing) ? "Сохранить" : "Отправить")</button>
-    @if (isEditing)
-    {
-        <button type="button" class="btn btn-secondary" @onclick="ResetForm">Отмена</button>
-    }
-</EditForm>
+        @if (isEditing)
+        {
+            <button type="button" class="btn btn-secondary" @onclick="ResetForm">Отмена</button>
+        }
+    </EditForm>
 
     <p style="text-align: left;">
 
@@ -199,7 +203,7 @@
 @code {
     string message = "";
     string user = "";
-    string iUser = @Counter.idU.Name;
+    string iUser;
     string movie = "";
     HubConnection hubConnection;
     List<string> messages = new List<string>();
@@ -210,14 +214,14 @@
     public int ID;
     public string MovTitle;
     public int idmov;
-    public int idUs = @Counter.idU.Id;
+    public int idUs;
     private string photoUrl = "";
     private int selectedMessageId;
     public string NameU;
     private List<User> usr = new List<User>();
     private List<string> items = new List<string>();
     private System.Timers.Timer timer;
-    public User? usr1 = Counter.idU;
+    public User? usr1;
     private bool isEditing = false;
     private Message mesa = new Message();
 
@@ -303,14 +307,17 @@
     protected override async Task OnInitializedAsync()
     {
 
-
+        iUser = UserState1.Value.User.Name;
+        user = UserState1.Value.User.Name;
+        idUs = UserState1.Value.User.Id;
+        usr1 = UserState1.Value.User;
         await LoadMessage();
 
 
         await LoadMovies();
         await LoadUser();
 
-        user = iUser;
+        
 
         hubConnection = new HubConnectionBuilder().WithUrl("https://localhost:7023/chatHub").Build();
         try

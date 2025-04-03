@@ -3,6 +3,11 @@
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 @using BlazorF.ApiFilm.Models
+@using BlazorF.StateManager
+@rendermode InteractiveServer
+@using Fluxor;
+@inject IDispatcher Dispatcher
+@inject IState<UserState1> UserState1
 
 
 <style>
@@ -56,14 +61,15 @@ else
 
 @code {
     private User user;
-    public User? usr1 = Counter.idU;
+    public User? usr1;
 
     protected override async Task OnInitializedAsync()
     {
 
         try
         {
-            user = Counter.idU;
+            usr1 = UserState1.Value.User;
+            user = UserState1.Value.User;
             // await response.Content.ReadFromJsonAsync<User>();
         }
         catch (Exception ex)
