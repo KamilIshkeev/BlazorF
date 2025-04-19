@@ -43,7 +43,43 @@ else
             
             <!-- Добавьте другие поля по необходимости "/lsmessage" -->
         </div>
+<button style="display: inline-block; margin-right: 10px;" type="button" class="btn btn-perehod" @onclick="ToggleForm1">Редактировать</button>
+<div class="d-grid gap-2">
+  @if(isEdit == true)
+        {
+            <EditForm Model="user" OnValidSubmit="HandleUpdateUser">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
 
+                <div class="form-group">
+                    <label for="name">Имя</label>
+                    <InputText id="name" @bind-Value="user.Name" placeholder="Имя" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <InputText id="email" @bind-Value="user.Email" placeholder="Email" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Описание</label>
+                    <InputText id="description" @bind-Value="user.Description" placeholder="Описание" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <InputText id="password" @bind-Value="user.Password" type="password" placeholder="Пароль" class="form-control" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">@(!isEditing ? "Редактировать" : "Сохранить")</button>
+                @if (isEditing)
+                {
+                    <button type="button" class="btn btn-secondary" @onclick="ResetForm">Отмена</button>
+                }
+            </EditForm>
+        } 
+</div>
+      <div class="card">
         <p>
             <NavLink class="btn btn-primary" href="/movies">Перейти в каталог</NavLink>
             <NavLink class="btn btn-primary" href="/weather">Перейти в общий чат</NavLink>
@@ -56,12 +92,16 @@ else
             
             }
         </p>
+      </div>
     </div>
 }
 
 @code {
     private User user;
     public User? usr1;
+    private bool isEditing = false;
+    private bool isEdit = false;
+    private void ToggleForm1() { isEdit = !isEdit; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -79,7 +119,47 @@ else
 
     }
 
+   private async Task HandleUpdateUser()
+    {
+        try
+        {
+            if (!isEditing)
+            {
+                // Переключение в режим редактирования
+                isEditing = true;
+                return;
+            }
 
+            // Отправка изменений на сервер
+            var response = await Http.PutAsJsonAsync($"api/User/{user.Id}", user);
+            if (response.IsSuccessStatusCode)
+            {
+                ShowAlert("Данные успешно обновлены!");
+                isEditing = false; // Выход из режима редактирования
+            }
+            else
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                ShowAlert($"Ошибка обновления пользователя: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowAlert($"Ошибка: {ex.Message}");
+        }
+    }
+
+    private void ResetForm()
+    {
+        // Сброс изменений
+        OnInitializedAsync().Wait(); // Повторная загрузка исходных данных
+        isEditing = false;
+    }
+
+    private async Task ShowAlert(string message)
+    {
+        await JS.InvokeVoidAsync("alert", message);
+    }
 
 
 
